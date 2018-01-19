@@ -4,57 +4,79 @@ import BaseComponent from '../components/BaseComponent.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import Message from '../components/Message.jsx';
 import IconButton from 'material-ui/IconButton';
-import ContentCreate from 'material-ui/svg-icons/content/create';
+import ContentRemove from 'material-ui/svg-icons/content/remove';
 import {Table, TableBody, TableRow, TableRowColumn} from 'material-ui/Table';
 import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 
+import {
+  insert,
+  updateText,
+  remove,
+} from '/imports/api/professions/methods.js';
+
 export default class ProfessionsPage extends BaseComponent {
 
   constructor(props) {
     super(props);
-    this.state = Object.assign(this.state, { editing: undefined, open: false });
+    this.state = {...this.state, editing: undefined, open: false, value: "" };
   }
+
+  onClickAddedButton = () => {
+    insert.call({name: this.state.value});
+  };
+
+  handleChange = (event) => {
+    this.setState({
+      value: event.target.value,
+    })
+  };
 
   render(){
     const { loading, listExists, professions } = this.props;
     if (!listExists) {
       return <NotFoundPage />;
     }
-    let ProfessionsList = (!listExists || !professions.length)? (
-      <Message
-        title={i18n.__('pages.ProfessionsPage.noProfessions')}
-        subtitle={i18n.__('pages.ProfessionsPage.addAbove')}
-      />
-    ) : (
+    let ProfessionsList = (
       <div>
         <Toolbar>
-          <ToolbarGroup firstChild={true}>
-            <TextField fullWidth={true} />
-            <RaisedButton label={i18n.__('pages.ProfessionsPage.Add')}/>
+          <ToolbarGroup firstChild={true} style={{marginLeft: 0}}>
+            <TextField
+              fullWidth={true}
+              name={'newProfession'}
+              value = {this.state.value}
+              onChange = {this.handleChange}
+            />
+            <RaisedButton label={i18n.__('pages.ProfessionsPage.Add')} onClick={this.onClickAddedButton}/>
           </ToolbarGroup>
         </Toolbar>
-        <Table>
-          <TableBody showRowHover={true} displayRowCheckbox={true}>
-            {professions.map((profession,index) => (
-              <TableRow key={profession._id}>
-                <TableRowColumn>
-                  {profession.name}
-                </TableRowColumn>
-                <TableRowColumn style={{overflow: 'visible', width: 100}}>
-                  <IconButton
-                    tooltip="Изменить"
-                    tooltipPosition='top-center'
-                    onClick={() => this.onEditingChange(profession, true)}
-                  >
-                    <ContentCreate/>
-                  </IconButton>
-                </TableRowColumn>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        {(!listExists || !professions.length) ?
+          <Message
+            title={i18n.__('pages.ProfessionsPage.noProfessions')}
+            subtitle={i18n.__('pages.ProfessionsPage.addAbove')}
+          />
+          : <Table>
+            <TableBody showRowHover={true} displayRowCheckbox={true}>
+              {professions.map((profession, index) => (
+                <TableRow key={profession._id}>
+                  <TableRowColumn>
+                    {profession.name}
+                  </TableRowColumn>
+                  <TableRowColumn style={{overflow: 'visible', width: 100}}>
+                    <IconButton
+                      tooltip="Изменить"
+                      tooltipPosition='top-center'
+                      onClick={() => this.onEditingChange(profession, true)}
+                    >
+                      <ContentRemove/>
+                    </IconButton>
+                  </TableRowColumn>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        }
       </div>
     );
 
