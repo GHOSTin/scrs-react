@@ -15,7 +15,6 @@ export const insert = new ValidatedMethod({
     const profession = {
       name
     };
-
     Professions.insert(profession);
   },
 });
