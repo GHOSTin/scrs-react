@@ -85,11 +85,11 @@ export default class UsersPage extends BaseComponent {
               <TableRow key={user._id}>
                 <TableRowColumn style={{width: 68}}><Avatar src={user.avatar}/></TableRowColumn>
                 <TableRowColumn>
-                  {user.profile.name}
+                  {user.profile?user.profile.name:null}
                 </TableRowColumn>
                 <TableRowColumn>{user.username}</TableRowColumn>
                 <TableRowColumn>{this.getRole(user.roles[0])}</TableRowColumn>
-                <TableRowColumn style={{width: 150}}><Status status={user.profile.status} /></TableRowColumn>
+                <TableRowColumn style={{width: 150}}><Status status={user.profile?user.profile.status:null} /></TableRowColumn>
                 <TableRowColumn style={{overflow: 'visible', width: 130}}>
                   <IconButton
                       tooltip="Изменить"

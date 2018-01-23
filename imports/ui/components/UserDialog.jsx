@@ -72,7 +72,8 @@ export default class UserDialog extends BaseComponent {
     super(props);
     this.state = Object.assign(this.state, {
       editing: props.editing,
-      user: props.user
+      user: props.user,
+      role: props.user.roles ? props.user.roles[0] : ""
     });
     this.getRole = (role) => {
       return _.chain(RolesCollection).find({value: role}).get('text', '').value()
@@ -85,7 +86,8 @@ export default class UserDialog extends BaseComponent {
   componentWillReceiveProps(props) {
     this.setState({
       editing: props.editing,
-      user: props.user
+      user: props.user,
+      role: props.user.roles ? props.user.roles[0] : ""
     })
   }
 
@@ -112,7 +114,17 @@ export default class UserDialog extends BaseComponent {
     this.changeHandlerVal(key, attr, event.currentTarget.value);
   };
 
-  changeEmail(e, value) {
+  changeRole = (chosenRequest)=>{
+    console.log(chosenRequest);
+    let user = this.state.user;
+    user.roles = [chosenRequest.value];
+    this.setState({
+      user: user,
+      role: chosenRequest.value
+    })
+  };
+
+  changeEmail = (e, value) => {
     e.preventDefault();
     let emails = [{address: value}];
     let user = this.state.user;
@@ -120,7 +132,7 @@ export default class UserDialog extends BaseComponent {
     this.setState({
       user: user
     });
-  }
+  };
 
   handleSave(e) {
     e.preventDefault();
@@ -129,29 +141,24 @@ export default class UserDialog extends BaseComponent {
     const password = this.password.getValue();
     const confirm = this.passwordConfirm.getValue();
     const avatar = this.state.user.avatar;
+    let id;
+    const doc = {
+      username,
+      profile: {
+        name
+      },
+      password: password === confirm ? password : "",
+      avatar
+    };
     console.log(this.state.user);
     if (!this.state.verified) {
       return false;
     }
     if (this.state.editing) {
-      const doc = {
-        username: username,
-        profile: {
-          name: name
-        },
-        password: password === confirm ? password : "",
-        avatar: avatar
-      };
       update.call({id: this.state.user._id, doc: doc}, displayError)
+      id = this.state.user._id;
     } else {
-      Accounts.createUser({
-        username,
-        profile: {
-          name: name
-        },
-        password,
-        avatar
-      }, (err) => {
+      id = Accounts.createUser(doc, (err) => {
         if (err) {
           this.setState({
             errors: {none: err.reason},
@@ -159,6 +166,7 @@ export default class UserDialog extends BaseComponent {
         }
       });
     }
+    Roles.setUserRoles(id, this.state.role);
     this.props.onHide()
   };
 
@@ -257,19 +265,30 @@ export default class UserDialog extends BaseComponent {
                     name="login"
                     fullWidth={true}
                     floatingLabelText="Логин"
-                    value={user.profile.name}
+                    value={user.profile?user.profile.name:""}
                     ref={(e) => {
                       this.name = e
                     }}
                     onChange={this.changeHandler.bind(this, 'user', 'login')}
                 />
+                <TextField
+                  name="email"
+                  fullWidth={true}
+                  floatingLabelText="E-mail"
+                  type="email"
+                  defaultValue={user.emails[0]?user.emails[0].address:""}
+                  ref = {(e)=>{this.email = e}}
+                  onChange={this.changeEmail}
+                />
                 <AutoComplete
-                    floatingLabelText="Роль"
-                    searchText={user.roles?this.getRole(user.roles[0]):null}
-                    filter={AutoComplete.noFilter}
-                    openOnFocus={true}
-                    fullWidth={true}
-                    dataSource={RolesCollection}
+                  floatingLabelText="Роль"
+                  searchText={this.getRole(this.state.role)}
+                  filter={AutoComplete.noFilter}
+                  openOnFocus={true}
+                  fullWidth={true}
+                  dataSource={RolesCollection}
+                  onUpdateInput={(searchText)=>{this.setState({role: searchText})}}
+                  onNewRequest={this.changeRole}
                 />
                 <TextField
                     name="password"
