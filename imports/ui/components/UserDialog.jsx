@@ -9,6 +9,7 @@ import {grey50} from 'material-ui/styles/colors';
 import ImageCameraAlt from 'material-ui/svg-icons/image/camera-alt';
 import AutoComplete from 'material-ui/AutoComplete';
 import Avatar from 'material-ui/Avatar';
+import Toggle from 'material-ui/Toggle';
 import {AvatarCropper, FileUpload} from './ImageUploader.jsx';
 import {RolesCollection} from "../../api/roles/roles";
 
@@ -16,6 +17,7 @@ import {Row, Col} from 'react-flexbox-grid';
 
 import {update} from '/imports/api/users/methods'
 import {displayError} from '../helpers/errors.js';
+import UsersPage from "../pages/UsersPage";
 
 let DateTimeFormat;
 
@@ -70,11 +72,11 @@ export default class UserDialog extends BaseComponent {
 
   constructor(props) {
     super(props);
-    this.state = Object.assign(this.state, {
-      editing: props.editing,
+    this.state = {...this.state,
       user: props.user,
-      role: props.user.roles ? props.user.roles[0] : ""
-    });
+      role: props.user.roles ? props.user.roles[0] : "",
+      status: props.user.profile.status
+    };
     this.getRole = (role) => {
       return _.chain(RolesCollection).find({value: role}).get('text', '').value()
     };
@@ -85,9 +87,9 @@ export default class UserDialog extends BaseComponent {
 
   componentWillReceiveProps(props) {
     this.setState({
-      editing: props.editing,
       user: props.user,
-      role: props.user.roles ? props.user.roles[0] : ""
+      role: props.user.roles ? props.user.roles[0] : "",
+      status: props.user.profile.status
     })
   }
 
@@ -115,7 +117,6 @@ export default class UserDialog extends BaseComponent {
   };
 
   changeRole = (chosenRequest)=>{
-    console.log(chosenRequest);
     let user = this.state.user;
     user.roles = [chosenRequest.value];
     this.setState({
@@ -134,28 +135,37 @@ export default class UserDialog extends BaseComponent {
     });
   };
 
+  toggleStatus = (event, isInputChecked) => {
+    this.setState({
+      status: isInputChecked ? 'active' : 'inactive'
+    })
+  };
+
   handleSave(e) {
     e.preventDefault();
     const username = this.username.getValue();
     const name = this.name.getValue();
+    const status = this.state.status;
     const password = this.password.getValue();
     const confirm = this.passwordConfirm.getValue();
     const avatar = this.state.user.avatar;
+    const role = this.state.role;
     let id;
     const doc = {
       username,
       profile: {
-        name
+        name,
+        status
       },
       password: password === confirm ? password : "",
-      avatar
+      avatar,
+      role
     };
-    console.log(this.state.user);
     if (!this.state.verified) {
       return false;
     }
-    if (this.state.editing) {
-      update.call({id: this.state.user._id, doc: doc}, displayError)
+    if (this.context.editing) {
+      update.call({id: this.state.user._id, doc: doc}, displayError);
       id = this.state.user._id;
     } else {
       id = Accounts.createUser(doc, (err) => {
@@ -166,7 +176,6 @@ export default class UserDialog extends BaseComponent {
         }
       });
     }
-    Roles.setUserRoles(id, this.state.role);
     this.props.onHide()
   };
 
@@ -222,7 +231,14 @@ export default class UserDialog extends BaseComponent {
         <Avatar size={60} src={user.avatar} style={styles.avatar}/>
       </div>
       <div style={styles.dialogTitle}>
-        {this.state.editing ? "Изменить пользователя" : "Новый пользователь"}
+        {this.context.editing ? "Изменить пользователя" : "Новый пользователь"}
+        <span style={styles.status}>
+          <Toggle
+              defaultToggled={user.profile.status && user.profile.status === 'active'}
+              style={styles.toggle}
+              onToggle={this.toggleStatus}
+          />
+        </span>
       </div>
       {this.state.cropperOpen &&
       <AvatarCropper
@@ -252,9 +268,19 @@ export default class UserDialog extends BaseComponent {
             <Row>
               <Col xs={12} md={12}>
                 <TextField
-                    name="username"
+                    name="name"
                     fullWidth={true}
                     floatingLabelText="ФИО"
+                    value={user.profile?user.profile.name:""}
+                    ref={(e) => {
+                      this.name = e
+                    }}
+                    onChange={this.changeHandler.bind(this, 'user', 'name')}
+                />
+                <TextField
+                    name="username"
+                    fullWidth={true}
+                    floatingLabelText="Логин"
                     value={user.username}
                     ref={(e) => {
                       this.username = e
@@ -262,21 +288,11 @@ export default class UserDialog extends BaseComponent {
                     onChange={this.changeHandler.bind(this, 'user', 'username')}
                 />
                 <TextField
-                    name="login"
-                    fullWidth={true}
-                    floatingLabelText="Логин"
-                    value={user.profile?user.profile.name:""}
-                    ref={(e) => {
-                      this.name = e
-                    }}
-                    onChange={this.changeHandler.bind(this, 'user', 'login')}
-                />
-                <TextField
                   name="email"
                   fullWidth={true}
                   floatingLabelText="E-mail"
                   type="email"
-                  defaultValue={user.emails[0]?user.emails[0].address:""}
+                  defaultValue={(user.emails && user.emails[0])?user.emails[0].address:""}
                   ref = {(e)=>{this.email = e}}
                   onChange={this.changeEmail}
                 />
@@ -345,4 +361,8 @@ UserDialog.defaultProps = {
   },
   password: null,
   passwordConfirm: null
+};
+
+UserDialog.contextTypes  = {
+  editing: React.PropTypes.bool
 };

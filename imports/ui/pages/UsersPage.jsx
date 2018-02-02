@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import i18n from 'meteor/universe:i18n';
 import BaseComponent from '../components/BaseComponent.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
@@ -35,6 +36,10 @@ export default class UsersPage extends BaseComponent {
     this.onEditingChange = this.onEditingChange.bind(this);
   }
 
+  getChildContext() {
+    return {editing: this.state.editing};
+  }
+
   onEditingChange(user, editing) {
     console.log(user);
     this.setState({
@@ -67,7 +72,7 @@ export default class UsersPage extends BaseComponent {
       );
     } else {
       Users = (
-        <Table>
+        <Table fixedHeader>
           <TableHeader
             displaySelectAll={false}
           >
@@ -84,11 +89,9 @@ export default class UsersPage extends BaseComponent {
             {users.map((user,index) => (
               <TableRow key={user._id}>
                 <TableRowColumn style={{width: 68}}><Avatar src={user.avatar}/></TableRowColumn>
-                <TableRowColumn>
-                  {user.profile?user.profile.name:null}
-                </TableRowColumn>
+                <TableRowColumn>{user.profile?user.profile.name:null}</TableRowColumn>
                 <TableRowColumn>{user.username}</TableRowColumn>
-                <TableRowColumn>{this.getRole(user.roles[0])}</TableRowColumn>
+                <TableRowColumn>{/*this.getRole(user.roles[0])*/}</TableRowColumn>
                 <TableRowColumn style={{width: 150}}><Status status={user.profile?user.profile.status:null} /></TableRowColumn>
                 <TableRowColumn style={{overflow: 'visible', width: 130}}>
                   <IconButton
@@ -142,4 +145,8 @@ UsersPage.propTypes = {
   loading: React.PropTypes.bool,
   listExists: React.PropTypes.bool,
   users: React.PropTypes.array,
+};
+
+UsersPage.childContextTypes = {
+  editing: React.PropTypes.bool
 };

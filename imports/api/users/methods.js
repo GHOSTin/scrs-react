@@ -9,21 +9,30 @@ export const update =  new ValidatedMethod({
     "id": { type: String },
     "doc": {type: Object},
     "doc.username": { type: String },
-    "doc.email": { type: String },
+    "doc.email": { type: String, optional: true },
     "doc.password": { type: String },
-    "doc.avatar": { type: String },
+    "doc.avatar": { type: String, optional: true },
+    "doc.role": { type: String },
+    "doc.profile": {type: Object},
+    "doc.profile.name": {type: String, optional: true},
+    "doc.profile.status": {type: String},
   }).validator(),
-  run({ id, doc }) {
+  run: function ({id, doc}) {
     Meteor.users.update(id, {
       $set: {
         username: doc.username,
         "emails.0.address": doc.email,
-        avatar: doc.avatar
+        avatar: doc.avatar,
+        profile: {
+          name: doc.profile.name,
+          status: doc.profile.status
+        }
       }
     });
-    if(doc.password !== ""){
+    if (doc.password !== "") {
       Accounts.setPassword(id, doc.password)
     }
+    Roles.setUserRoles(id, doc.role);
     return true;
   }
 });
