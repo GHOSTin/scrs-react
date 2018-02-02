@@ -66,3 +66,4 @@ shell-server@0.3.0
 audit-argument-checks@1.0.7
 dynamic-import
 alanning:roles
+accounts-base

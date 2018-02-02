@@ -15,9 +15,8 @@ import {RolesCollection} from "../../api/roles/roles";
 
 import {Row, Col} from 'react-flexbox-grid';
 
-import {update} from '/imports/api/users/methods'
+import {insert, update} from '/imports/api/users/methods'
 import {displayError} from '../helpers/errors.js';
-import UsersPage from "../pages/UsersPage";
 
 let DateTimeFormat;
 
@@ -61,7 +60,7 @@ export default class UserDialog extends BaseComponent {
       },
       createdAt: null,
       avatar: "/default-userAvatar.png",
-      roles:[]
+      roles:[],
     },
     cropperOpen: false,
     img: null,
@@ -75,7 +74,8 @@ export default class UserDialog extends BaseComponent {
     this.state = {...this.state,
       user: props.user,
       role: props.user.roles ? props.user.roles[0] : "",
-      status: props.user.profile.status
+      status: props.user.profile.status,
+      name: props.user.profile.name,
     };
     this.getRole = (role) => {
       return _.chain(RolesCollection).find({value: role}).get('text', '').value()
@@ -89,7 +89,8 @@ export default class UserDialog extends BaseComponent {
     this.setState({
       user: props.user,
       role: props.user.roles ? props.user.roles[0] : "",
-      status: props.user.profile.status
+      status: props.user.profile.status,
+      name: props.user.profile.name,
     })
   }
 
@@ -125,16 +126,6 @@ export default class UserDialog extends BaseComponent {
     })
   };
 
-  changeEmail = (e, value) => {
-    e.preventDefault();
-    let emails = [{address: value}];
-    let user = this.state.user;
-    user.emails = emails;
-    this.setState({
-      user: user
-    });
-  };
-
   toggleStatus = (event, isInputChecked) => {
     this.setState({
       status: isInputChecked ? 'active' : 'inactive'
@@ -148,9 +139,8 @@ export default class UserDialog extends BaseComponent {
     const status = this.state.status;
     const password = this.password.getValue();
     const confirm = this.passwordConfirm.getValue();
-    const avatar = this.state.user.avatar;
+    const avatar = this.state.user.avatar?this.state.user.avatar:"/default-userAvatar.png";
     const role = this.state.role;
-    let id;
     const doc = {
       username,
       profile: {
@@ -165,16 +155,16 @@ export default class UserDialog extends BaseComponent {
       return false;
     }
     if (this.context.editing) {
-      update.call({id: this.state.user._id, doc: doc}, displayError);
-      id = this.state.user._id;
+      update.call({id: this.state.user._id, doc}, displayError);
     } else {
-      id = Accounts.createUser(doc, (err) => {
+      /*Accounts.createUser(doc, (err) => {
         if (err) {
           this.setState({
             errors: {none: err.reason},
           });
         }
-      });
+      });*/
+      insert.call({doc}, displayError);
     }
     this.props.onHide()
   };
@@ -271,11 +261,11 @@ export default class UserDialog extends BaseComponent {
                     name="name"
                     fullWidth={true}
                     floatingLabelText="ФИО"
-                    value={user.profile?user.profile.name:""}
+                    value={this.state.name}
                     ref={(e) => {
                       this.name = e
                     }}
-                    onChange={this.changeHandler.bind(this, 'user', 'name')}
+                    onChange={this.changeHandler.bind(this, null, 'name')}
                 />
                 <TextField
                     name="username"
@@ -286,15 +276,6 @@ export default class UserDialog extends BaseComponent {
                       this.username = e
                     }}
                     onChange={this.changeHandler.bind(this, 'user', 'username')}
-                />
-                <TextField
-                  name="email"
-                  fullWidth={true}
-                  floatingLabelText="E-mail"
-                  type="email"
-                  defaultValue={(user.emails && user.emails[0])?user.emails[0].address:""}
-                  ref = {(e)=>{this.email = e}}
-                  onChange={this.changeEmail}
                 />
                 <AutoComplete
                   floatingLabelText="Роль"

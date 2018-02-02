@@ -131,11 +131,12 @@ export default class UsersPage extends BaseComponent {
           >
             <ContentAdd/>
           </FloatingActionButton>
+          {!loading ?
           <UserDialog
             open={this.state.open}
             onHide={this.onHideModal}
             user={this.state.user}
-          />
+          /> : null}
         </div>
     );
   }
