@@ -90,3 +90,23 @@ export const update =  new ValidatedMethod({
     return true;
   }
 });
+
+export const remove =  new ValidatedMethod({
+  name: 'users.remove',
+  validate: new SimpleSchema({
+    "id": {type: String},
+  }).validator(),
+  run: function ({id}) {
+    if(Meteor.isServer) {
+      const loggedInUser = Meteor.user();
+      if (!loggedInUser ||
+          !Roles.userIsInRole(loggedInUser,
+              ['admin'])) {
+        throw new Meteor.Error(403, "Access denied")
+      }
+      Roles.setUserRoles(id, []);
+      Meteor.users.remove(id);
+      return true;
+    }
+  }
+});

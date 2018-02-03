@@ -63,7 +63,8 @@
       "needAccount": "Need an account? Join Now."
     },
     "UsersPage": {
-      "loading": "Загрузка пользователей..."
+      "loading": "Загрузка пользователей...",
+      "confirmDelete": "Вы действительно хотите удалить пользователя?"
     },
     "notFoundPage": {
       "pageNotFound": "Page not found"
