@@ -2,4 +2,6 @@ import '../../api/lists/methods.js';
 import '../../api/lists/server/publications.js';
 import '../../api/todos/methods.js';
 import '../../api/todos/server/publications.js';
+import '../../api/professions/methods.js';
+import '../../api/professions/server/publications.js';
 import '../../api/languages/methods.js';
