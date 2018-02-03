@@ -4,7 +4,26 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Accounts } from 'meteor/accounts-base';
 
-export const insert = new ValidatedMethod({
+/**
+ * update a user's permissions
+ *
+ * @param {Object} targetUserId Id of user to update
+ * @param {Array} roles User's new permissions
+ */
+
+export const updateRoles = (targetUserId, roles) => {
+  const loggedInUser = Meteor.user();
+
+  if (!loggedInUser ||
+      !Roles.userIsInRole(loggedInUser,
+          ['admin'])) {
+    throw new Meteor.Error(403, "Access denied")
+  }
+
+  Roles.setUserRoles(targetUserId, roles)
+};
+
+export const insert =  new ValidatedMethod({
   name: 'users.insert',
   validate: new SimpleSchema({
     "doc": {type: Object},
@@ -17,21 +36,26 @@ export const insert = new ValidatedMethod({
     "doc.profile.status": {type: String},
   }).validator(),
   run: function ({doc}) {
-    console.log(doc);
-
-    const id = Accounts.createUser({
-      username: doc.username,
-      password: doc.password,
-      avatar: doc.avatar,
-      profile: doc.profile,
-    }, (err)=>{
-      console.log(err)
-    });
-    if (doc.password !== "") {
-      Accounts.setPassword(id, doc.password)
+    if(Meteor.isServer) {
+      const id = Accounts.createUser({
+        password: doc.password,
+        username: doc.username,
+        profile: {
+          name: doc.profile.name,
+          status: doc.profile.status,
+        }
+      });
+      Meteor.users.update(id, {
+        $set: {
+          avatar: doc.avatar
+        }
+      });
+      updateRoles(id, [doc.role]);
+      return {
+        _id: id
+      };
     }
-    Roles.setUserRoles(id, doc.role);
-    return id;
+    return true;
   }
 });
 
@@ -62,7 +86,7 @@ export const update =  new ValidatedMethod({
     if (doc.password !== "") {
       Accounts.setPassword(id, doc.password)
     }
-    Roles.setUserRoles(id, doc.role);
+    updateRoles(id, [doc.role]);
     return true;
   }
 });

@@ -157,13 +157,6 @@ export default class UserDialog extends BaseComponent {
     if (this.context.editing) {
       update.call({id: this.state.user._id, doc}, displayError);
     } else {
-      /*Accounts.createUser(doc, (err) => {
-        if (err) {
-          this.setState({
-            errors: {none: err.reason},
-          });
-        }
-      });*/
       insert.call({doc}, displayError);
     }
     this.props.onHide()

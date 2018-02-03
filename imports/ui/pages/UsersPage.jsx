@@ -41,7 +41,6 @@ export default class UsersPage extends BaseComponent {
   }
 
   onEditingChange(user, editing) {
-    console.log(user);
     this.setState({
       user: editing ? user : undefined,
       open: true,
