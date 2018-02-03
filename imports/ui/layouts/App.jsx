@@ -211,7 +211,7 @@ class App extends React.Component {
                       <Avatar src={user.avatar}
                               size={50}
                               style={styles.avatar.icon}/>
-                      <span style={styles.avatar.span}>{user.username}</span>
+                      <span style={styles.avatar.span}>{user.profile.name}</span>
                     </div> : null
                 }
                 <MainMenu/>

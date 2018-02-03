@@ -16,6 +16,7 @@ export default class JoinPage extends BaseComponent {
   onSubmit(event) {
     event.preventDefault();
     const email = this.email.value;
+    const username = this.username.value;
     const password = this.password.value;
     const confirm = this.confirm.value;
     const errors = {};
@@ -38,6 +39,7 @@ export default class JoinPage extends BaseComponent {
     Accounts.createUser({
       email,
       password,
+      username
     }, (err) => {
       if (err) {
         this.setState({
@@ -73,6 +75,18 @@ export default class JoinPage extends BaseComponent {
               name="email"
               ref={(c) => { this.email = c; }}
               placeholder={i18n.__('pages.authPageJoin.yourEmail')}
+            />
+            <span
+              className="icon-email"
+              title={i18n.__('pages.authPageJoin.yourEmail')}
+            />
+          </div>
+          <div className={`input-symbol ${errorClass('username')}`}>
+            <input
+              type="text"
+              name="username"
+              ref={(c) => { this.username = c; }}
+              placeholder={i18n.__('pages.authPageJoin.yourUsername')}
             />
             <span
               className="icon-email"
