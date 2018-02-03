@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import i18n from 'meteor/universe:i18n';
 import BaseComponent from '../components/BaseComponent.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
@@ -17,6 +16,8 @@ import Status from '../components/Status';
 import {RolesCollection} from '../../api/roles/roles';
 import {_} from 'lodash';
 
+import {remove} from '../../api/users/methods';
+
 const styles = {
   floatingActionButton: {
     margin: 0,
@@ -32,8 +33,7 @@ export default class UsersPage extends BaseComponent {
   constructor(props) {
     super(props);
     this.getRole = (role) => {return _.chain(RolesCollection).find({value: role}).get('text', '').value()};
-    this.state = Object.assign(this.state, { editing: undefined, open: false });
-    this.onEditingChange = this.onEditingChange.bind(this);
+    this.state = {...this.state,  editing: undefined, open: false };
   }
 
   getChildContext() {
@@ -46,6 +46,12 @@ export default class UsersPage extends BaseComponent {
       open: true,
       editing: editing
     });
+  }
+
+  static onClickRemove(user){
+    if(confirm(i18n.__('pages.UsersPage.confirmDelete'))){
+      remove.call({ id: user._id });
+    }
   }
 
   onHideModal = () => {
@@ -90,7 +96,7 @@ export default class UsersPage extends BaseComponent {
                 <TableRowColumn style={{width: 68}}><Avatar src={user.avatar}/></TableRowColumn>
                 <TableRowColumn>{user.profile?user.profile.name:null}</TableRowColumn>
                 <TableRowColumn>{user.username}</TableRowColumn>
-                <TableRowColumn>{/*this.getRole(user.roles[0])*/}</TableRowColumn>
+                <TableRowColumn>{this.getRole(user.roles[0])}</TableRowColumn>
                 <TableRowColumn style={{width: 150}}><Status status={user.profile?user.profile.status:null} /></TableRowColumn>
                 <TableRowColumn style={{overflow: 'visible', width: 130}}>
                   <IconButton
@@ -103,7 +109,7 @@ export default class UsersPage extends BaseComponent {
                   <IconButton
                       tooltip="Удалить"
                       tooltipPosition='top-center'
-                      onClick={() => this.onClickRemove(user, true)}
+                      onClick={() => UsersPage.onClickRemove(user)}
                   >
                     <RemoveCircle/>
                   </IconButton>
