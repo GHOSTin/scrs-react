@@ -16,6 +16,7 @@
     "intl": "^1.2.5",
     "lodash": "^4.17.4",
     "material-ui": "^0.20.0",
+    "material-ui-superselectfield": "^1.8.5",
     "react": "^15.6.2",
     "react-addons-css-transition-group": "^15.6.2",
     "react-addons-pure-render-mixin": "^15.6.2",

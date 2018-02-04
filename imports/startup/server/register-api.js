@@ -7,4 +7,5 @@ import '../../api/users/methods.js';
 import '../../api/users/server/publications.js';
 import '../../api/professions/methods.js';
 import '../../api/professions/server/publications.js';
+import '../../api/students/server/publications.js';
 import '../../api/languages/methods.js';
