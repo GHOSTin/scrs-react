@@ -35,8 +35,8 @@ export const Students = new Mongo.Collection('students', {
     } else {
       student.currentProfession = {
         _id: null,
-        gild: null,
-        sector: null
+        gild: "",
+        sector: ""
       }
     }
     student.professions = profession2student;
@@ -76,8 +76,19 @@ Profession2Student.schema = new SimpleSchema({
   controllerId: { type: String },
   masterId: { type: String },
   instructorId: { type: String },
-  createAt: { type: Date },
-  isClosed: { type: Boolean },
+  createAt: {
+    type: Date,
+    autoValue: function() {
+      if (this.isInsert) {
+        return new Date();
+      } else if (this.isUpsert) {
+        return {$setOnInsert: new Date()};
+      } else {
+        this.unset();  // Prevent user from supplying their own value
+      }
+    }
+  },
+  isClosed: { type: Boolean, defaultValue: true },
 });
 
 Profession2Student.attachSchema(Profession2Student.schema);

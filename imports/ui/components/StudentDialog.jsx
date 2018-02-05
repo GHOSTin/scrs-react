@@ -5,7 +5,7 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import Divider from 'material-ui/Divider';
-import {grey50, teal500} from 'material-ui/styles/colors';
+import {grey50, cyan500} from 'material-ui/styles/colors';
 import ActionFace from 'material-ui/svg-icons/action/face';
 import ArrowDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down'
 import Avatar from 'material-ui/Avatar';
@@ -13,7 +13,7 @@ import SuperSelectField from 'material-ui-superselectfield'
 
 import {Row, Col} from 'react-flexbox-grid';
 
-import {insert, update} from '/imports/api/users/methods'
+import {insert, update} from '/imports/api/students/methods'
 import {displayError} from '../helpers/errors.js';
 
 let DateTimeFormat;
@@ -49,7 +49,7 @@ const styles = {
 };
 
 export default class StudentDialog extends BaseComponent {
-  state = {
+  baseState = {
     student: {
       name: "",
       speciality: "",
@@ -57,23 +57,19 @@ export default class StudentDialog extends BaseComponent {
       professions: [],
       currentProfession: {
         _id: null,
-        gild: null,
-        sector: null
+        gild: "",
+        sector: ""
       }
     },
-    cropperOpen: false,
-    img: null,
     verified: true,
   };
+  state = this.baseState;
 
   constructor(props) {
     super(props);
     this.state = {...this.state,
-      student: {...this.state.student, ...props.student},
+      student: props.student,
     };
-    this.handleSave = this.handleSave.bind(this);
-    this.handleFileChange = this.handleFileChange.bind(this);
-    this.changeHandler = this.changeHandler.bind(this);
   }
 
   componentWillReceiveProps(props) {
@@ -82,11 +78,19 @@ export default class StudentDialog extends BaseComponent {
     });
   }
 
+  componentWillUnmount(){
+    this.setState(this.baseState);
+  }
+
   changeHandlerVal(key, attr, value) {
     let state = {};
     if (key !== null) {
       state[key] = this.state[key] || {};
-      state[key][attr] = value;
+      if(typeof value === "object"){
+        state[key][attr] = {...state[key][attr], value}
+      } else {
+        state[key][attr] = value;
+      }
     } else {
       state[attr] = value;
     }
@@ -94,63 +98,60 @@ export default class StudentDialog extends BaseComponent {
     this.setState(state);
   };
 
-  changeHandler = function (key, attr, event) {
-    if (event.currentTarget.name === 'password' || event.currentTarget.name === 'passwordConfirm') {
-      if (this.password.getValue() !== this.passwordConfirm.getValue()) {
-        this.setState({verified: false});
-      } else {
-        this.setState({verified: true});
-      }
+  changeHandler = (key, attr, event) => {
+    if (attr === 'gild' || attr === 'sector'){
+      let state = {...this.state.student};
+      state[key] = {...state[key], [attr]:event.currentTarget.value};
+      this.setState({
+        student: state
+      });
+    } else {
+      this.changeHandlerVal(key, attr, event.currentTarget.value);
     }
-    this.changeHandlerVal(key, attr, event.currentTarget.value);
   };
 
-  handleSave(e) {
-    e.preventDefault();
-    const username = this.username.getValue();
-    const name = this.name.getValue();
-    const status = this.state.status;
-    const password = this.password.getValue();
-    const confirm = this.passwordConfirm.getValue();
-    const avatar = this.state.user.avatar?this.state.user.avatar:"/default-userAvatar.png";
-    const role = this.state.role;
-    const doc = {
-      username,
+  handleSelectionProfession = (values, name) => {
+    let state = {...this.state.student};
+    state['currentProfession'] = {...state.currentProfession, _id: values.value, name: values.label}
+    this.setState({
+      student: state
+    });
+  };
+
+  handleSelectionTutor = (values, name) => {
+    let state = {...this.state.student};
+    let user = {
+      _id: values.value,
       profile: {
-        name,
-        status
-      },
-      password: password === confirm ? password : "",
-      avatar,
-      role
+        name: values.label
+      }
     };
-    if (!this.state.verified) {
-      return false;
-    }
+    state['currentProfession'] = {...state.currentProfession, [name]: user};
+    this.setState({
+      student: state
+    });
+  };
+
+  handleSave = (e) => {
+    e.preventDefault();
+    const { professions, _id, ...student } = this.state.student;
     if (this.context.editing) {
-      update.call({id: this.state.user._id, doc}, displayError);
+      update.call({id: _id, student}, displayError);
     } else {
-      insert.call({doc}, displayError);
+      insert.call({student}, displayError);
     }
+    this.setState({
+      ...this.baseState
+    });
     this.props.onHide()
   };
 
-  handleFileChange(dataURI) {
-    this.changeHandlerVal(null, "img", dataURI);
-    this.changeHandlerVal(null, "cropperOpen", true);
-    this.changeHandlerVal("user", "avatar", this.state.user.avatar);
-  };
-
-  handleCrop(dataURI) {
-    this.changeHandlerVal(null, "img", null);
-    this.changeHandlerVal(null, "cropperOpen", false);
-    this.changeHandlerVal("user", "avatar", dataURI);
-  };
-
-  handleRequestHide() {
+  onHide = (e) => {
+    e.preventDefault();
     this.setState({
-      cropperOpen: false
+        ...this.baseState
     });
+    this.props.onHide();
   };
 
   render() {
@@ -159,7 +160,7 @@ export default class StudentDialog extends BaseComponent {
           label="Отмена"
           primary={false}
           keyboardFocused={false}
-          onClick={this.props.onHide}
+          onClick={this.onHide}
       />,
       <FlatButton
           label="Сохранить"
@@ -178,7 +179,7 @@ export default class StudentDialog extends BaseComponent {
         <Avatar size={60} icon={<ActionFace />} style={styles.avatar}/>
       </div>
       <div style={styles.dialogTitle}>
-        {this.context.editing ? "Редактирование студента" : _.isEmpty(this.props.student) ? "Новый студент" : "Прикрепление профессии"}
+        {this.context.editing ? "Редактирование студента" : _.isNull(student._id) ? "Новый студент" : "Прикрепление профессии"}
       </div>
     </div>);
 
@@ -209,14 +210,15 @@ export default class StudentDialog extends BaseComponent {
     <Row>
       <Col xs={12} md={12}>
         <SuperSelectField
-          name="profession"
+          name="currentProfession"
           floatingLabel={"Получаемая профессия"}
-          underlineFocusStyle={{ borderColor: teal500 }}
+          underlineFocusStyle={{ borderColor: cyan500 }}
           style={{ marginTop: 40, outline: "none" }}
           dropDownIcon={<ArrowDown />}
           showAutocompleteThreshold={'always'}
           hintTextAutocomplete={"Поиск профессии"}
           hintText={""}
+          onChange={this.handleSelectionProfession}
           value={student.currentProfession ?
             {
               value: student.currentProfession._id,
@@ -236,7 +238,7 @@ export default class StudentDialog extends BaseComponent {
             ref={(e) => {
               this.gild = e
             }}
-            onChange={this.changeHandler.bind(this, 'currentProfession', 'gild', 'student')}
+            onChange={this.changeHandler.bind(this, 'currentProfession', 'gild')}
           />
         </Col>
         <Col xs={12} md={6}>
@@ -248,14 +250,14 @@ export default class StudentDialog extends BaseComponent {
             ref={(e) => {
               this.sector = e
             }}
-            onChange={this.changeHandler.bind(this, 'currentProfession', 'sector', 'student')}
+            onChange={this.changeHandler.bind(this, 'currentProfession', 'sector')}
           />
         </Col>
         <Col xs={12} md={12}>
           <SuperSelectField
             name="controller"
             floatingLabel={"Наставник"}
-            underlineFocusStyle={{ borderColor: teal500 }}
+            underlineFocusStyle={{ borderColor: cyan500 }}
             style={{ marginTop: 40, outline: "none" }}
             dropDownIcon={<ArrowDown />}
             showAutocompleteThreshold={'always'}
@@ -267,6 +269,7 @@ export default class StudentDialog extends BaseComponent {
                 label:student.currentProfession.controller.profile.name
               } : null
             }
+            onChange={this.handleSelectionTutor}
           >
             {dataSourceControllers}
           </SuperSelectField>
@@ -275,7 +278,7 @@ export default class StudentDialog extends BaseComponent {
           <SuperSelectField
             name="master"
             floatingLabel={"Мастер"}
-            underlineFocusStyle={{ borderColor: teal500 }}
+            underlineFocusStyle={{ borderColor: cyan500 }}
             style={{ marginTop: 40, outline: "none" }}
             dropDownIcon={<ArrowDown />}
             showAutocompleteThreshold={'always'}
@@ -287,6 +290,7 @@ export default class StudentDialog extends BaseComponent {
                 label:student.currentProfession.master.profile.name
               } : null
             }
+            onChange={this.handleSelectionTutor}
           >
             {dataSourceMasters}
           </SuperSelectField>
@@ -295,7 +299,7 @@ export default class StudentDialog extends BaseComponent {
           <SuperSelectField
             name="instructor"
             floatingLabel={"Инструктор"}
-            underlineFocusStyle={{ borderColor: teal500 }}
+            underlineFocusStyle={{ borderColor: cyan500 }}
             style={{ marginTop: 40, outline: "none" }}
             dropDownIcon={<ArrowDown />}
             showAutocompleteThreshold={'always'}
@@ -307,6 +311,7 @@ export default class StudentDialog extends BaseComponent {
                 label:student.currentProfession.instructor.profile.name
               } : null
             }
+            onChange={this.handleSelectionTutor}
           >
             {dataSourceInstructors}
           </SuperSelectField>
@@ -368,9 +373,9 @@ export default class StudentDialog extends BaseComponent {
               onRequestClose={this.props.onHide}
               autoScrollBodyContent={true}
           >
-            {(this.context.editing) || (!this.context.editing && _.isEmpty(student)) ? generalInfo : null}
+            {(this.context.editing) || (!this.context.editing && _.isNull(student._id)) ? generalInfo : null}
             {(this.context.editing && student.currentProfession._id) ||
-            (!this.context.editing && !_.isEmpty(student)) ? attachmentInfo : null}
+            (!this.context.editing && !_.isNull(student._id)) ? attachmentInfo : null}
           </Dialog>
         </div>
     )
@@ -392,14 +397,15 @@ export default class StudentDialog extends BaseComponent {
 
 StudentDialog.defaultProps = {
   student: {
+    _id: null,
     name: "",
     speciality: "",
     year: "",
     professions: [],
     currentProfession: {
       _id: null,
-      gild: null,
-      sector: null
+      gild: "",
+      sector: ""
     }
   },
 };

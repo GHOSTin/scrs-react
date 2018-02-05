@@ -18,7 +18,7 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Snackbar from 'material-ui/Snackbar';
 
-import {remove} from '../../api/users/methods';
+import {remove} from '../../api/students/methods';
 
 const styles = {
   floatingActionButton: {
@@ -66,7 +66,7 @@ export default class UsersPage extends BaseComponent {
 
   onEditingChange(student, editing) {
     this.setState({
-      student: student ? student : {},
+      student: _.isEmpty(student) ? undefined : student,
       open: true,
       editing: editing
     });
