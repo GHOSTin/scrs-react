@@ -149,6 +149,7 @@ export default class UsersPage extends BaseComponent {
                       style={styles.attach.button}
                       labelStyle={styles.attach.label}
                       onClick={() => this.onEditingChange(student, false)}
+                      disabled={!_.isNull(student.currentProfession._id)}
                     />
                   </TableRowColumn>
                   <TableRowColumn style={{overflow: 'visible', width: 130}}>

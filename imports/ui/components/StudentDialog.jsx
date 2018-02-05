@@ -9,7 +9,6 @@ import {grey50, teal500} from 'material-ui/styles/colors';
 import ActionFace from 'material-ui/svg-icons/action/face';
 import ArrowDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down'
 import Avatar from 'material-ui/Avatar';
-import {RolesCollection} from "../../api/roles/roles";
 import SuperSelectField from 'material-ui-superselectfield'
 
 import {Row, Col} from 'react-flexbox-grid';
@@ -28,8 +27,8 @@ const styles = {
     background: grey50
   },
   avatarPhoto: {
-    "position": "relative",
-    "width": 60,
+    position: "relative",
+    width: 60,
     float: "left",
   },
   avatarOverlay: {
@@ -40,7 +39,7 @@ const styles = {
     lineHeight: "60px"
   },
   avatarOverlayIcon: {
-    "fontSize": 24,
+    fontSize: 24,
   },
   avatar: {boxShadow: "0 0 1px 6px #e8e8e8"},
   dialogTitle: {
@@ -56,6 +55,11 @@ export default class StudentDialog extends BaseComponent {
       speciality: "",
       year: "",
       professions: [],
+      currentProfession: {
+        _id: null,
+        gild: null,
+        sector: null
+      }
     },
     cropperOpen: false,
     img: null,
@@ -65,10 +69,7 @@ export default class StudentDialog extends BaseComponent {
   constructor(props) {
     super(props);
     this.state = {...this.state,
-      student: props.student,
-    };
-    this.getRole = (role) => {
-      return _.chain(RolesCollection).find({value: role}).get('text', '').value()
+      student: {...this.state.student, ...props.student},
     };
     this.handleSave = this.handleSave.bind(this);
     this.handleFileChange = this.handleFileChange.bind(this);
@@ -202,6 +203,158 @@ export default class StudentDialog extends BaseComponent {
         </div>
     ));
 
+    const attachmentInfo = (
+    <div>
+    <h2 className="m-t">Данные о профессии</h2>
+    <Row>
+      <Col xs={12} md={12}>
+        <SuperSelectField
+          name="profession"
+          floatingLabel={"Получаемая профессия"}
+          underlineFocusStyle={{ borderColor: teal500 }}
+          style={{ marginTop: 40, outline: "none" }}
+          dropDownIcon={<ArrowDown />}
+          showAutocompleteThreshold={'always'}
+          hintTextAutocomplete={"Поиск профессии"}
+          hintText={""}
+          value={student.currentProfession ?
+            {
+              value: student.currentProfession._id,
+              label:student.currentProfession.name
+            } : null
+        }
+        >
+          {dataSourceProfessions}
+        </SuperSelectField>
+        </Col>
+        <Col xs={12} md={6}>
+          <TextField
+            name="gild"
+            fullWidth={true}
+            floatingLabelText="№ цеха"
+            value={student.currentProfession.gild}
+            ref={(e) => {
+              this.gild = e
+            }}
+            onChange={this.changeHandler.bind(this, 'currentProfession', 'gild', 'student')}
+          />
+        </Col>
+        <Col xs={12} md={6}>
+          <TextField
+            name="sector"
+            fullWidth={true}
+            floatingLabelText="Участок"
+            value={student.currentProfession.sector}
+            ref={(e) => {
+              this.sector = e
+            }}
+            onChange={this.changeHandler.bind(this, 'currentProfession', 'sector', 'student')}
+          />
+        </Col>
+        <Col xs={12} md={12}>
+          <SuperSelectField
+            name="controller"
+            floatingLabel={"Наставник"}
+            underlineFocusStyle={{ borderColor: teal500 }}
+            style={{ marginTop: 40, outline: "none" }}
+            dropDownIcon={<ArrowDown />}
+            showAutocompleteThreshold={'always'}
+            hintTextAutocomplete={"Поиск"}
+            hintText={""}
+            value={student.currentProfession && student.currentProfession.controller ?
+              {
+                value: student.currentProfession.controller._id,
+                label:student.currentProfession.controller.profile.name
+              } : null
+            }
+          >
+            {dataSourceControllers}
+          </SuperSelectField>
+        </Col>
+        <Col xs={12} md={12}>
+          <SuperSelectField
+            name="master"
+            floatingLabel={"Мастер"}
+            underlineFocusStyle={{ borderColor: teal500 }}
+            style={{ marginTop: 40, outline: "none" }}
+            dropDownIcon={<ArrowDown />}
+            showAutocompleteThreshold={'always'}
+            hintTextAutocomplete={"Поиск"}
+            hintText={""}
+            value={student.currentProfession && student.currentProfession.master ?
+              {
+                value: student.currentProfession.master._id,
+                label:student.currentProfession.master.profile.name
+              } : null
+            }
+          >
+            {dataSourceMasters}
+          </SuperSelectField>
+        </Col>
+        <Col xs={12} md={12}>
+          <SuperSelectField
+            name="instructor"
+            floatingLabel={"Инструктор"}
+            underlineFocusStyle={{ borderColor: teal500 }}
+            style={{ marginTop: 40, outline: "none" }}
+            dropDownIcon={<ArrowDown />}
+            showAutocompleteThreshold={'always'}
+            hintTextAutocomplete={"Поиск"}
+            hintText={""}
+            value={student.currentProfession && student.currentProfession.instructor ?
+              {
+                value: student.currentProfession.instructor._id,
+                label:student.currentProfession.instructor.profile.name
+              } : null
+            }
+          >
+            {dataSourceInstructors}
+          </SuperSelectField>
+        </Col>
+        <Divider/>
+      </Row>
+    </div>);
+
+    const generalInfo = (
+    <div>
+      <h2 className="m-t">Общая информация</h2>
+      <Row>
+        <Col xs={12} md={12}>
+          <TextField
+            name="name"
+            fullWidth={true}
+            floatingLabelText="ФИО"
+            value={student.name}
+            ref={(e) => {
+              this.name = e
+            }}
+            onChange={this.changeHandler.bind(this, 'student', 'name')}
+          />
+          <TextField
+            name="speciality"
+            fullWidth={true}
+            floatingLabelText="Специальность"
+            value={student.speciality}
+            ref={(e) => {
+              this.speciality = e
+            }}
+            onChange={this.changeHandler.bind(this, 'student', 'speciality')}
+          />
+          <TextField
+            name="year"
+            fullWidth={true}
+            floatingLabelText="Год поступления"
+            value={student.year}
+            ref={(e) => {
+              this.year = e
+            }}
+            onChange={this.changeHandler.bind(this, 'student', 'year')}
+          />
+        </Col>
+        <Divider/>
+      </Row>
+    </div>);
+
     return (
         <div>
           <Dialog
@@ -215,150 +368,9 @@ export default class StudentDialog extends BaseComponent {
               onRequestClose={this.props.onHide}
               autoScrollBodyContent={true}
           >
-            <h2 className="m-t">Общая информация</h2>
-            <Row>
-              <Col xs={12} md={12}>
-                <TextField
-                    name="name"
-                    fullWidth={true}
-                    floatingLabelText="ФИО"
-                    value={student.name}
-                    ref={(e) => {
-                      this.name = e
-                    }}
-                    onChange={this.changeHandler.bind(this, 'student', 'name')}
-                />
-                <TextField
-                    name="speciality"
-                    fullWidth={true}
-                    floatingLabelText="Специальность"
-                    value={student.speciality}
-                    ref={(e) => {
-                      this.speciality = e
-                    }}
-                    onChange={this.changeHandler.bind(this, 'student', 'speciality')}
-                />
-                <TextField
-                    name="year"
-                    fullWidth={true}
-                    floatingLabelText="Год поступления"
-                    value={student.year}
-                    ref={(e) => {
-                      this.year = e
-                    }}
-                    onChange={this.changeHandler.bind(this, 'student', 'year')}
-                />
-              </Col>
-              <Divider/>
-            </Row>
-            <h2 className="m-t">Данные о профессии</h2>
-            <Row>
-              <Col xs={12} md={12}>
-                <SuperSelectField
-                  name="profession"
-                  floatingLabel={"Получаемая профессия"}
-                  underlineFocusStyle={{ borderColor: teal500 }}
-                  style={{ marginTop: 40, outline: "none" }}
-                  dropDownIcon={<ArrowDown />}
-                  showAutocompleteThreshold={'always'}
-                  hintTextAutocomplete={"Поиск профессии"}
-                  hintText={""}
-                  value={student.currentProfession ?
-                      {
-                        value: student.currentProfession._id,
-                        label:student.currentProfession.name
-                      } : null
-                  }
-                >
-                  {dataSourceProfessions}
-                </SuperSelectField>
-              </Col>
-              <Col xs={12} md={6}>
-                <TextField
-                    name="gild"
-                    fullWidth={true}
-                    floatingLabelText="№ цеха"
-                    value={student.gild}
-                    ref={(e) => {
-                      this.gild = e
-                    }}
-                    onChange={this.changeHandler.bind(this, 'student', 'gild')}
-                />
-              </Col>
-              <Col xs={12} md={6}>
-                <TextField
-                    name="sector"
-                    fullWidth={true}
-                    floatingLabelText="Участок"
-                    value={student.sector}
-                    ref={(e) => {
-                      this.sector = e
-                    }}
-                    onChange={this.changeHandler.bind(this, 'student', 'sector')}
-                />
-              </Col>
-              <Col xs={12} md={12}>
-                <SuperSelectField
-                  name="controller"
-                  floatingLabel={"Наставник"}
-                  underlineFocusStyle={{ borderColor: teal500 }}
-                  style={{ marginTop: 40, outline: "none" }}
-                  dropDownIcon={<ArrowDown />}
-                  showAutocompleteThreshold={'always'}
-                  hintTextAutocomplete={"Поиск"}
-                  hintText={""}
-                  value={student.currentProfession && student.currentProfession.controller ?
-                      {
-                        value: student.currentProfession.controller._id,
-                        label:student.currentProfession.controller.profile.name
-                      } : null
-                  }
-                >
-                  {dataSourceControllers}
-                </SuperSelectField>
-              </Col>
-              <Col xs={12} md={12}>
-                <SuperSelectField
-                    name="master"
-                    floatingLabel={"Мастер"}
-                    underlineFocusStyle={{ borderColor: teal500 }}
-                    style={{ marginTop: 40, outline: "none" }}
-                    dropDownIcon={<ArrowDown />}
-                    showAutocompleteThreshold={'always'}
-                    hintTextAutocomplete={"Поиск"}
-                    hintText={""}
-                    value={student.currentProfession && student.currentProfession.master ?
-                        {
-                          value: student.currentProfession.master._id,
-                          label:student.currentProfession.master.profile.name
-                        } : null
-                    }
-                >
-                  {dataSourceMasters}
-                </SuperSelectField>
-              </Col>
-              <Col xs={12} md={12}>
-                <SuperSelectField
-                    name="instructor"
-                    floatingLabel={"Инструктор"}
-                    underlineFocusStyle={{ borderColor: teal500 }}
-                    style={{ marginTop: 40, outline: "none" }}
-                    dropDownIcon={<ArrowDown />}
-                    showAutocompleteThreshold={'always'}
-                    hintTextAutocomplete={"Поиск"}
-                    hintText={""}
-                    value={student.currentProfession && student.currentProfession.instructor ?
-                        {
-                          value: student.currentProfession.instructor._id,
-                          label:student.currentProfession.instructor.profile.name
-                        } : null
-                    }
-                >
-                  {dataSourceInstructors}
-                </SuperSelectField>
-              </Col>
-              <Divider/>
-            </Row>
+            {(this.context.editing) || (!this.context.editing && _.isEmpty(student)) ? generalInfo : null}
+            {(this.context.editing && student.currentProfession._id) ||
+            (!this.context.editing && !_.isEmpty(student)) ? attachmentInfo : null}
           </Dialog>
         </div>
     )
@@ -384,6 +396,11 @@ StudentDialog.defaultProps = {
     speciality: "",
     year: "",
     professions: [],
+    currentProfession: {
+      _id: null,
+      gild: null,
+      sector: null
+    }
   },
 };
 

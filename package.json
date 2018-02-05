@@ -14,7 +14,7 @@
     "classnames": "^2.2.5",
     "faker": "^3.1.0",
     "intl": "^1.2.5",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.5",
     "material-ui": "^0.20.0",
     "material-ui-superselectfield": "^1.8.5",
     "react": "^15.6.2",

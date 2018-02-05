@@ -30,8 +30,14 @@ export const Students = new Mongo.Collection('students', {
       student.currentProfession.controller = Users.findOne({_id: currentProfession.controllerId});
       student.currentProfession.master = Users.findOne({_id: currentProfession.masterId});
       student.currentProfession.instructor = Users.findOne({_id: currentProfession.instructorId});
+      student.currentProfession.gild = currentProfession.gild;
+      student.currentProfession.sector = currentProfession.sector;
     } else {
-      student.currentProfession = {}
+      student.currentProfession = {
+        _id: null,
+        gild: null,
+        sector: null
+      }
     }
     student.professions = profession2student;
     return student;
