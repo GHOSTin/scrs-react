@@ -40,12 +40,13 @@ export const update =  new ValidatedMethod({
     "student.currentProfession.gild": {type: String},
     "student.currentProfession.sector": {type: String},
     "student.currentProfession.name": {type: String, optional: true},
-    "student.currentProfession.controller": {type: TutorSchema, optional: true},
-    "student.currentProfession.master": {type: TutorSchema, optional: true},
-    "student.currentProfession.instructor": {type: TutorSchema, optional: true},
+    "student.currentProfession.controller": {type: TutorSchema, optional: true, blackbox: true},
+    "student.currentProfession.master": {type: TutorSchema, optional: true, blackbox: true},
+    "student.currentProfession.instructor": {type: TutorSchema, optional: true, blackbox: true},
   }).validator(),
-  run: function ({id, doc}) {
-    let {currentProfession, ...student} = doc;
+  run: function ({id, student}) {
+    console.log(currentProfession);
+    let {currentProfession, ...studentData} = student;
     if(currentProfession._id !== null){
       Profession2Student.update({studentId: id, profId: currentProfession._id, isClosed: false},
         {$set: {
@@ -59,7 +60,7 @@ export const update =  new ValidatedMethod({
           }
         }, {upsert: true});
     }
-    Students.update(id, student);
+    Students.update(id, {$set: {...studentData}});
     return true;
   }
 });

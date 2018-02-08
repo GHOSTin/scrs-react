@@ -135,7 +135,7 @@ export default class StudentDialog extends BaseComponent {
   handleSave = (e) => {
     e.preventDefault();
     const { professions, _id, ...student } = this.state.student;
-    if (this.context.editing) {
+    if (this.context.type === "edit" || this.context.type === "attach") {
       update.call({id: _id, student}, displayError);
     } else {
       insert.call({student}, displayError);
@@ -373,9 +373,9 @@ export default class StudentDialog extends BaseComponent {
               onRequestClose={this.props.onHide}
               autoScrollBodyContent={true}
           >
-            {(this.context.editing) || (!this.context.editing && _.isNull(student._id)) ? generalInfo : null}
-            {(this.context.editing && student.currentProfession._id) ||
-            (!this.context.editing && !_.isNull(student._id)) ? attachmentInfo : null}
+            {(this.context.type === "create" || this.context.type === "edit") ? generalInfo : null}
+            {(this.context.type === "attach") ||
+            (this.context.type === "edit" && !_.isNull(student.currentProfession._id)) ? attachmentInfo : null}
           </Dialog>
         </div>
     )
@@ -412,6 +412,7 @@ StudentDialog.defaultProps = {
 
 StudentDialog.contextTypes  = {
   editing: React.PropTypes.bool,
+  type: React.PropTypes.string,
   professions: React.PropTypes.array,
   controllers: React.PropTypes.array,
   masters: React.PropTypes.array,

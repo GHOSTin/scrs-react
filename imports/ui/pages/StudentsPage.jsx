@@ -51,12 +51,13 @@ export default class UsersPage extends BaseComponent {
   constructor(props) {
     super(props);
     this.getRole = (role) => {return _.chain(RolesCollection).find({value: role}).get('text', '').value()};
-    this.state = {...this.state,  editing: undefined };
+    this.state = {...this.state,  editing: undefined, type: "" };
   }
 
   getChildContext() {
     return {
       editing: this.state.editing,
+      type: this.state.type,
       professions: this.props.professions,
       controllers: this.props.controllers,
       masters: this.props.masters,
@@ -64,11 +65,12 @@ export default class UsersPage extends BaseComponent {
     };
   }
 
-  onEditingChange(student, editing) {
+  onEditingChange(student, type) {
     this.setState({
       student: _.isEmpty(student) ? undefined : student,
       open: true,
-      editing: editing
+      editing: type==="edit" || type==="attach",
+      type: type
     });
   }
 
@@ -148,7 +150,7 @@ export default class UsersPage extends BaseComponent {
                       labelColor={fullWhite}
                       style={styles.attach.button}
                       labelStyle={styles.attach.label}
-                      onClick={() => this.onEditingChange(student, false)}
+                      onClick={() => this.onEditingChange(student, "attach")}
                       disabled={!_.isNull(student.currentProfession._id)}
                     />
                   </TableRowColumn>
@@ -156,7 +158,7 @@ export default class UsersPage extends BaseComponent {
                     <IconButton
                         tooltip="Изменить"
                         tooltipPosition='top-center'
-                        onClick={() => this.onEditingChange(student, true)}
+                        onClick={() => this.onEditingChange(student, "edit")}
                     >
                       <ContentCreate/>
                     </IconButton>
@@ -185,7 +187,7 @@ export default class UsersPage extends BaseComponent {
           </div>
           <FloatingActionButton
             backgroundColor={yellow400}
-            onClick={() => this.onEditingChange({}, false)}
+            onClick={() => this.onEditingChange({}, "create")}
             style={styles.floatingActionButton}
             iconStyle={{fill: fullBlack}}
           >
@@ -216,6 +218,7 @@ UsersPage.propTypes = {
 
 UsersPage.childContextTypes = {
   editing: React.PropTypes.bool,
+  type: React.PropTypes.string,
   professions: React.PropTypes.array,
   controllers: React.PropTypes.array,
   masters: React.PropTypes.array,
