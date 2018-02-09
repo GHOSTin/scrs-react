@@ -45,9 +45,8 @@ export const update =  new ValidatedMethod({
     "student.currentProfession.instructor": {type: TutorSchema, optional: true, blackbox: true},
   }).validator(),
   run: function ({id, student}) {
-    console.log(currentProfession);
     let {currentProfession, ...studentData} = student;
-    if(currentProfession._id !== null){
+    if(currentProfession && currentProfession._id !== null){
       Profession2Student.update({studentId: id, profId: currentProfession._id, isClosed: false},
         {$set: {
             studentId: id,
@@ -57,6 +56,7 @@ export const update =  new ValidatedMethod({
             controllerId: currentProfession.controller._id,
             masterId: currentProfession.master._id,
             instructorId: currentProfession.instructor._id,
+            isClosed: false
           }
         }, {upsert: true});
     }

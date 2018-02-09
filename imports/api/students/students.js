@@ -88,7 +88,17 @@ Profession2Student.schema = new SimpleSchema({
       }
     }
   },
-  isClosed: { type: Boolean, defaultValue: false },
+  isClosed: {
+    type: Boolean,
+    defaultValue: false,
+    autoValue: function() {
+      if (this.isInsert) {
+        return false;
+      } else {
+        this.unset();
+      }
+    }
+  },
 });
 
 Profession2Student.attachSchema(Profession2Student.schema);
