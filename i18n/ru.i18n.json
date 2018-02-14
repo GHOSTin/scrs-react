@@ -72,7 +72,10 @@
       "Search": "Поиск",
       "attachButton": "Прикрепить студента",
       "noStudents": "Отсутствуют записи о студентах",
-      "addAbove": "Добавьте или импортируйте их."
+      "addAbove": "Добавьте или импортируйте их.",
+      "addNewStudent": "Новый",
+      "importStudents": "Импорт",
+      "pickUpCSVFile": "Укажите файл CSV"
     },
     "notFoundPage": {
       "pageNotFound": "Page not found"

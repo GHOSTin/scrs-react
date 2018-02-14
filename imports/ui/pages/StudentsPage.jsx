@@ -4,8 +4,9 @@ import BaseComponent from '../components/BaseComponent.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import Message from '../components/Message.jsx';
 import StudentDialog from '../components/StudentDialog';
-import FloatingActionButton from 'material-ui/FloatingActionButton';
-import ContentAdd from 'material-ui/svg-icons/content/add';
+import Avatar from 'material-ui/Avatar';
+import NewIcon from 'material-ui/svg-icons/av/playlist-add';
+import AttachmentIcon from 'material-ui/svg-icons/file/attachment';
 import {yellow400, fullBlack, fullWhite, teal400} from 'material-ui/styles/colors';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import IconButton from 'material-ui/IconButton';
@@ -17,18 +18,12 @@ import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import Snackbar from 'material-ui/Snackbar';
+import { SpeedDial, BubbleList, BubbleListItem } from 'react-speed-dial';
+import ImportDialog from '../components/importStudentsDialog.jsx';
 
 import {remove} from '../../api/students/methods';
 
 const styles = {
-  floatingActionButton: {
-    margin: 0,
-    top: 'auto',
-    right: 20,
-    bottom: 20,
-    left: 'auto',
-    position: 'fixed',
-  },
   attach: {
     button: {
       height: 30,
@@ -40,12 +35,13 @@ const styles = {
   }
 };
 
-export default class UsersPage extends BaseComponent {
+export default class StudentsPage extends BaseComponent {
 
   state = {
     message: '',
     open: false,
-    openMessage: false
+    openMessage: false,
+    openImport: false,
   };
 
   constructor(props) {
@@ -65,6 +61,13 @@ export default class UsersPage extends BaseComponent {
     };
   }
 
+  componentWillReceiveProps(props){
+    this.setState({
+      initialStudentsList: props.students,
+      students: props.students
+    })
+  }
+
   onEditingChange(student, type) {
     this.setState({
       student: _.isEmpty(student) ? undefined : student,
@@ -82,12 +85,44 @@ export default class UsersPage extends BaseComponent {
 
   onHideModal = () => {
     this.setState({
-      open: false
+      open: false,
+      openImport: false
     });
   };
 
+  onClickImport = () => {
+    this.setState({
+      openImport: true
+    });
+  };
+
+  filterList = (event) => {
+    let updatedList = this.state.initialStudentsList;
+    updatedList = updatedList.filter(function(item){
+      return item.name.toLowerCase().search(
+        event.target.value.toLowerCase()) !== -1;
+    });
+    this.setState({students: updatedList});
+  };
+
   render() {
-    const { loading, listExists, students } = this.props;
+    const { loading, listExists } = this.props;
+    const { students } = this.state;
+
+    const list = {
+      items: [
+        {
+          primaryText: i18n.__('pages.StudentsPage.importStudents'),
+          rightAvatar: <Avatar backgroundColor={teal400} icon={<AttachmentIcon />} />,
+          onClick: () => this.onClickImport()
+        },
+        {
+          primaryText: i18n.__('pages.StudentsPage.addNewStudent'),
+          rightAvatar: <Avatar backgroundColor={teal400} icon={<NewIcon />} />,
+          onClick: () => this.onEditingChange({}, "create")
+        },
+      ],
+    };
 
     if (!listExists) {
       return <NotFoundPage />;
@@ -111,7 +146,7 @@ export default class UsersPage extends BaseComponent {
                   name={'searchName'}
                   floatingLabelText={i18n.__('pages.StudentsPage.SearchName')}
                   value = {this.state.value}
-                  onChange = {this.handleChange}
+                  onChange = {this.filterList}
               />
               <RaisedButton label={i18n.__('pages.StudentsPage.Search')} onClick={this.onClickSearchButton}/>
             </ToolbarGroup>
@@ -165,7 +200,7 @@ export default class UsersPage extends BaseComponent {
                     <IconButton
                         tooltip="Удалить"
                         tooltipPosition='top-center'
-                        onClick={() => UsersPage.onClickRemove(student)}
+                        onClick={() => StudentsPage.onClickRemove(student)}
                     >
                       <RemoveCircle/>
                     </IconButton>
@@ -178,6 +213,11 @@ export default class UsersPage extends BaseComponent {
       );
     }
 
+    const floatingActionButtonProps = {
+      backgroundColor: yellow400,
+      iconStyle: {fill: fullBlack}
+    };
+
     return (
         <div className="page lists-show">
           <div className="content-scrollable list-items">
@@ -185,20 +225,26 @@ export default class UsersPage extends BaseComponent {
               ? <Message title={i18n.__('pages.StudentsPage.loading')} />
               : Students}
           </div>
-          <FloatingActionButton
-            backgroundColor={yellow400}
-            onClick={() => this.onEditingChange({}, "create")}
-            style={styles.floatingActionButton}
-            iconStyle={{fill: fullBlack}}
+          <SpeedDial
+            hasBackdrop={false}
+            floatingActionButtonProps={floatingActionButtonProps}
           >
-            <ContentAdd/>
-          </FloatingActionButton>
+            <BubbleList>
+              {list.items.map((item, index) => {
+                return <BubbleListItem key={index} {...item} />;
+              })}
+            </BubbleList>
+          </SpeedDial>
           {!loading ?
           <StudentDialog
             open={this.state.open}
             onHide={this.onHideModal}
             student={this.state.student}
           /> : null}
+          <ImportDialog
+            open={this.state.openImport}
+            onHide={this.onHideModal}
+          />
           <Snackbar
               open={this.state.openMessage}
               message={this.state.message}
@@ -210,13 +256,13 @@ export default class UsersPage extends BaseComponent {
   }
 }
 
-UsersPage.propTypes = {
+StudentsPage.propTypes = {
   loading: React.PropTypes.bool,
   listExists: React.PropTypes.bool,
   students: React.PropTypes.array,
 };
 
-UsersPage.childContextTypes = {
+StudentsPage.childContextTypes = {
   editing: React.PropTypes.bool,
   type: React.PropTypes.string,
   professions: React.PropTypes.array,

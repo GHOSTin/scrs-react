@@ -23,6 +23,9 @@ DateTimeFormat = IntlPolyfill.DateTimeFormat;
 require('intl/locale-data/jsonp/ru-RU');
 
 const styles = {
+  dialogStyle: {
+    zIndex: 100
+  },
   titleStyle: {
     background: grey50
   },
@@ -361,23 +364,21 @@ export default class StudentDialog extends BaseComponent {
     </div>);
 
     return (
-        <div>
-          <Dialog
-              title={
-                UserDialogTitle
-              }
-              titleStyle={styles.titleStyle}
-              actions={actions}
-              modal={true}
-              open={this.props.open}
-              onRequestClose={this.props.onHide}
-              autoScrollBodyContent={true}
-          >
-            {(this.context.type === "create" || this.context.type === "edit") ? generalInfo : null}
-            {(this.context.type === "attach") ||
-            (this.context.type === "edit" && !_.isNull(student.currentProfession._id)) ? attachmentInfo : null}
-          </Dialog>
-        </div>
+      <Dialog
+        title={
+          UserDialogTitle
+        }
+        titleStyle={styles.titleStyle}
+        actions={actions}
+        modal={true}
+        open={this.props.open}
+        onRequestClose={this.props.onHide}
+        autoScrollBodyContent={true}
+      >
+        {(this.context.type === "create" || this.context.type === "edit") ? generalInfo : null}
+        {(this.context.type === "attach") ||
+        (this.context.type === "edit" && !_.isNull(student.currentProfession._id)) ? attachmentInfo : null}
+      </Dialog>
     )
   }
 }

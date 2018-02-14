@@ -17,7 +17,7 @@ export const insert =  new ValidatedMethod({
     "student.name": { type: String },
     "student.speciality": { type: String },
     "student.year": { type: String },
-    "student.currentProfession": {type: Object, blackbox: true}
+    "student.currentProfession": {type: Object, blackbox: true, optional: true}
   }).validator(),
   run: function ({student}) {
     if(Meteor.isServer) {
@@ -81,5 +81,25 @@ export const remove =  new ValidatedMethod({
       Students.remove(id);
       return true;
     }
+  }
+});
+
+export const imports = new ValidatedMethod({
+  name: 'students.import',
+  validate: null,
+  run(data){
+    data = _.map(data, function(value){
+      return _.object(['name', 'speciality', 'year'], value);
+    });
+    data.forEach((student)=>{
+      let exists = Students.findOne({name: student.name, year: student.year});
+      if(!exists) {
+        insert.call({student});
+      } else {
+        if(Meteor.isClient){
+          console.error(`Отклонено. Студент "${student.name}" уже добавлен`);
+        }
+      }
+    });
   }
 });
