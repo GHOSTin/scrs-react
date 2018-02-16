@@ -14,14 +14,17 @@
     "classnames": "^2.2.5",
     "faker": "^3.1.0",
     "intl": "^1.2.5",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.5",
     "material-ui": "^0.20.0",
+    "material-ui-superselectfield": "^1.8.5",
+    "papaparse": "^4.3.7",
     "react": "^15.6.2",
     "react-addons-css-transition-group": "^15.6.2",
     "react-addons-pure-render-mixin": "^15.6.2",
     "react-dom": "^15.6.2",
     "react-flexbox-grid": "^2.0.0",
     "react-router": "^2.8.1",
+    "react-speed-dial": "^0.4.7",
     "react-tap-event-plugin": "^3.0.2"
   },
   "devDependencies": {

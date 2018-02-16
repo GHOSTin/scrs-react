@@ -6,6 +6,7 @@ import i18n from 'meteor/universe:i18n';
 import AppContainer from '../../ui/containers/AppContainer.jsx';
 import UsersPageContainer from '../../ui/containers/UsersPageContainer.jsx';
 import ProfessionsPageContainer from '../../ui/containers/ProfessionsPageContainer.jsx';
+import StudentsPageContainer from '../../ui/containers/StudentsPageContainer.jsx';
 import AuthPageSignIn from '../../ui/pages/AuthPageSignIn.jsx';
 import AuthPageJoin from '../../ui/pages/AuthPageJoin.jsx';
 import NotFoundPage from '../../ui/pages/NotFoundPage.jsx';
@@ -17,6 +18,7 @@ export const renderRoutes = () => (
     <Route path="/" component={AppContainer}>
       <Route path="professions" component={ProfessionsPageContainer} />
       <Route path="users" component={UsersPageContainer} />
+      <Route path="students" component={StudentsPageContainer} />
       <Route path="signin" component={AuthPageSignIn} />
       <Route path="join" component={AuthPageJoin} />
       <Route path="*" component={NotFoundPage} />

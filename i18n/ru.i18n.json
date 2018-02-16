@@ -66,6 +66,17 @@
       "loading": "Загрузка пользователей...",
       "confirmDelete": "Вы действительно хотите удалить пользователя?"
     },
+    "StudentsPage": {
+      "loading": "Загрузка списка студентов...",
+      "SearchName": "ФИО",
+      "Search": "Поиск",
+      "attachButton": "Прикрепить студента",
+      "noStudents": "Отсутствуют записи о студентах",
+      "addAbove": "Добавьте или импортируйте их.",
+      "addNewStudent": "Новый",
+      "importStudents": "Импорт",
+      "pickUpCSVFile": "Укажите файл CSV"
+    },
     "notFoundPage": {
       "pageNotFound": "Page not found"
     }
