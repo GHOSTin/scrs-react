@@ -10,7 +10,7 @@ const ProfessionsPageContainer = withTracker( () => {
     const listExists = !loading && !!professions;
     return {
         loading,
-        listExists: true,
+        listExists: listExists,
         professions: listExists ? professions.fetch() : [],
     };
 })(ProfessionsPage);
