@@ -30,7 +30,6 @@ export default class ImportStudentsDialog extends BaseComponent {
       })
     }
     this.inputFileName.blur();
-    console.log(file);
   };
 
   onClick = (inputValue) => {
