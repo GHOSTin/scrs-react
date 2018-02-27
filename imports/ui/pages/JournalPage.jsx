@@ -6,22 +6,50 @@ import NotFoundPage from '../pages/NotFoundPage.jsx';
 import Message from '../components/Message.jsx';
 import IconButton from 'material-ui/IconButton';
 import ContentRemove from 'material-ui/svg-icons/content/remove';
-import {Table, TableBody, TableRow, TableRowColumn} from 'material-ui/Table';
+import {Table, TableHeader, TableBody, TableRow, TableHeaderColumn, TableRowColumn} from 'material-ui/Table';
 import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import {teal500, teal400, teal300, fullWhite} from 'material-ui/styles/colors';
 import Snackbar from 'material-ui/Snackbar';
+import {Grid, Row, Col} from 'react-flexbox-grid';
 import InfiniteCalendar, {
   Calendar,
   withRange,
 } from 'react-infinite-calendar';
 import 'react-infinite-calendar/styles.css';
 
-import {
-  insert,
-  updateText,
-  remove,
-} from '/imports/api/professions/methods.js';
+import NumberField from '../components/NumberField.jsx';
+import serialize from 'form-serialize';
+
+const theme={
+  selectionColor: teal300,
+      textColor: {
+  default: '#333',
+        active: '#FFF'
+  },
+  weekdayColor: teal300,
+      headerColor: teal400,
+      floatingNav: {
+    background: teal500,
+        color: '#FFF',
+        chevron: '#FFA726'
+  },
+  accentColor: teal400
+};
+
+const styles = {
+  tableStyles: {
+    width: "800px",
+  },
+  tableWrapperStyle: {
+    width: "800px",
+  },
+  tableHeader: {
+    width: "8%",
+    whiteSpace: "normal"
+  }
+};
 
 export default class JournalPage extends BaseComponent {
 
@@ -34,27 +62,18 @@ export default class JournalPage extends BaseComponent {
   constructor(props) {
     super(props);
     this.state = {...this.state, editing: undefined, open: false, value: "" };
+    this.points = [];
   }
 
   onClickAddedButton = () => {
-    insert.call({name: this.state.value}, (error)=>{
+    if(this.state.selected === null){
       this.setState({
-        open: true
-      });
-      if(error){
-        this.setState({
-          message: 'Ошибка при добавлении профессии'
-        });
-        return false;
-      }
-      this.setState({
-        message: 'Добавление прошло успешно.'
-      });
-      return true;
-    });
-    this.setState({
-      value: "",
-    })
+        open: true,
+        message: i18n.__('pages.JournalPage.selectWeek')
+      })
+    }
+    let obj = serialize(this.form, { hash: true });
+    console.log(obj)
   };
 
   handleChange = (event) => {
@@ -103,34 +122,221 @@ export default class JournalPage extends BaseComponent {
   };
 
   render(){
-    const { loading, listExists, professions } = this.props;
-    if (!listExists) {
+    const { loading, listExists, students } = this.props;
+    if (!listExists || !Meteor.userId()) {
       return <NotFoundPage />;
     }
-    let ProfessionsList = <div>
-      <InfiniteCalendar
-        Component={withRange(Calendar)}
-        locale={{
-          locale: require('date-fns/locale/ru'),
-          headerFormat: 'MMM Do',
-          todayLabel: {
-            long: 'Сегодня',
-          },
-          weekdays: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
-          weekStartsOn: 1,
-          blank: "Выберите неделю"
-        }}
-        selected={this.state.selected}
-        onSelect={this.onSelectDate}
-      />
+
+    const Tooltip1 = (
+        <ul>
+          <li>нарушений / замечаний не было	- 5</li>
+          <li>1 нарушение / замечание	- 4</li>
+          <li>2 нарушение / замечание	- 3</li>
+          <li>3 нарушение / замечание	- 2</li>
+          <li>4 нарушения / замечания	- 1</li>
+          <li>5 и более  нарушений / замечаний - 0</li>
+        </ul>
+    );
+
+    const Tooltip2 = (
+        <table className="tooltipTable">
+          <tbody>
+          <tr>
+            <td>Отлично знает ценности и философию компании.<br/>
+              Пропагандирует идеалы Белой металлургии.<br/>
+              Выявляет потери и инициирует улучшения. Подает рацпредложения</td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td>Знает ценности компании. При работе соблюдает чистоту и порядок.<br/>
+              Знает и понимает систему 5С и кайдзен.<br/>
+              Легко оперирует понятиями. Способен находить потери и проблемы на производстве.</td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td>Знает ценности компании. При работе соблюдает чистоту и порядок.<br/>
+              Имеет представление о системе 5С и кайдзен.</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td>Знает о наличии ценностей  компании. При работе соблюдает чистоту и порядок.</td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td>Не знает ценности компании. Равнодушен к порядку на рабочем месте.</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td>Отвергает и высмеивает корпоративную философию компании.</td>
+            <td>0</td>
+          </tr>
+          </tbody>
+        </table>
+    );
+
+    const Tooltip3 = (
+        <div>
+          Проявленные компетенции (оцените по 5 –бальной шкале):
+          <ul>
+            <li>ориентация на результат</li>
+            <li>аналитическое и стратегическое мышление</li>
+            <li>принятие решений</li>
+            <li>лидерство</li>
+            <li>работа в команде</li>
+            <li>коммуникация</li>
+          </ul>
+          <strong>Средний балл оценки Soft-Skills</strong>
+        </div>
+  );
+
+    const TableHeaderData = [
+      {
+        name: "Выполнение сменных заданий",
+        tooltip: "Средняя оценка из недельного плана"
+      },
+      {
+        name: "Выполнение требований ОТ",
+        tooltip: Tooltip1
+      },
+      {
+        name: "Соблюдение дисциплины",
+        tooltip: Tooltip1
+      },
+      {
+        name: "Соответствие стандартам ББМ",
+        tooltip: Tooltip2
+      },
+      {
+        name: "Оценка Soft-skills",
+        tooltip: Tooltip3
+      }
+    ];
+
+    let JournalCalendar = <div>
+      <Row>
+        <Col xs={12} md={6}>
+          <InfiniteCalendar
+              Component={withRange(Calendar)}
+              width={400}
+              theme={theme}
+              locale={{
+                locale: require('date-fns/locale/ru'),
+                headerFormat: 'MMM Do',
+                todayLabel: {
+                  long: 'Сегодня',
+                },
+                weekdays: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+                weekStartsOn: 1,
+                blank: i18n.__('pages.JournalPage.selectWeek')
+              }}
+              selected={this.state.selected}
+              onSelect={this.onSelectDate}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={12}>
+          <RaisedButton
+              label={i18n.__('pages.JournalPage.addWeekPlan')}
+              backgroundColor={teal500}
+              labelColor={fullWhite}
+              onClick={this.onClickAddedButton}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={12}>
+          <form
+            ref={form => this.form = form}
+          >
+          <Table
+            style={styles.tableStyles}
+            selectable={false}
+          >
+            <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
+              <TableRow key={"header"}>
+                <TableHeaderColumn style={{width: "200px"}}>
+                  ФИО
+                </TableHeaderColumn>
+                {TableHeaderData.map((row, index) => (
+                    <TableHeaderColumn
+                      tooltip={row.tooltip}
+                      key={index}
+                      style={styles.tableHeader}
+                    >
+                      {row.name}
+                    </TableHeaderColumn>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody displayRowCheckbox={false} style={styles.tableWrapperStyle}>
+              {students.map((student) => {
+                this.points[student._id] = [];
+                return (
+                  <TableRow key={student._id}>
+                    <TableRowColumn style={{width: "200px"}}>
+                      {student.name}
+                    </TableRowColumn>
+                    <TableRowColumn style={styles.tableHeader}>
+                      <NumberField
+                        name={`points[${student._id}][]`}
+                        type={"number"}
+                        min={0}
+                        max={5}
+                        ref={(input) => {this.points[student._id][0] = input }}
+                      />
+                    </TableRowColumn>
+                    <TableRowColumn style={styles.tableHeader}>
+                      <NumberField
+                          name={`points[${student._id}][]`}
+                          type={"number"}
+                          min={0}
+                          max={5}
+                          ref={(input) => {this.points[student._id][1] = input }}
+                      />
+                    </TableRowColumn>
+                    <TableRowColumn style={styles.tableHeader}>
+                      <NumberField
+                          name={`points[${student._id}][]`}
+                          type={"number"}
+                          min={0}
+                          max={5}
+                          ref={input => this.points[student._id][2] = input}
+                      />
+                    </TableRowColumn>
+                    <TableRowColumn style={styles.tableHeader}>
+                      <NumberField
+                          name={`points[${student._id}][]`}
+                          type={"number"}
+                          min={0}
+                          max={5}
+                          ref={input => this.points[student._id][3] = input}
+                      />
+                    </TableRowColumn>
+                    <TableRowColumn style={styles.tableHeader}>
+                      <NumberField
+                          name={`points[${student._id}][]`}
+                          type={"number"}
+                          min={0}
+                          max={5}
+                          ref={input => this.points[student._id][4] = input}
+                      />
+                    </TableRowColumn>
+                  </TableRow>
+              )})}
+            </TableBody>
+          </Table>
+          </form>
+        </Col>
+      </Row>
     </div>;
 
     return (
-      <div className="page lists-show">
-        <div className="content-scrollable list-items">
+        <div className="page lists-show">
+          <div className="content-scrollable list-items">
           {loading
-            ? <Message title={i18n.__('pages.ProfessionsPage.loading')} />
-            : ProfessionsList}
+            ? <Message title={i18n.__('pages.JournalPage.loading')} />
+            : JournalCalendar}
           <Snackbar
               open={this.state.open}
               message={this.state.message}

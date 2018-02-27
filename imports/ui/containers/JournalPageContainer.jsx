@@ -1,17 +1,20 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Users } from '../../api/users/users';
+import { Students } from '../../api/students/students';
 import JournalPage from '../pages/JournalPage';
 
 const JournalPageContainer = withTracker( () => {
-  const usersHandler = Meteor.subscribe('users.list');
-  const loading = !usersHandler.ready();
-  const users = Users.find({});
-  const listExists = !loading && !!users;
+  const studentsHandler = Meteor.subscribe('students.masters');
+  const studentProfessionHandler = Meteor.subscribe('students.professions.list');
+  const professionHandler = Meteor.subscribe('professions');
+  const loading = !studentsHandler.ready() || !professionHandler.ready() || !studentProfessionHandler.ready();
+  const students = Students.find({});
+  const listExists = !loading && !!students;
+  console.log(students.fetch());
   return {
     loading,
     listExists: true,
-    users: listExists ? users.fetch() : [],
+    students: listExists ? students.fetch() : [],
   };
 })(JournalPage);
 

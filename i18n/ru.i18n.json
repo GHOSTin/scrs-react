@@ -77,6 +77,12 @@
       "importStudents": "Импорт",
       "pickUpCSVFile": "Укажите файл CSV"
     },
+    "JournalPage": {
+      "loading": "Загрузка...",
+      "selectWeek": "Выберите неделю...",
+      "addWeekPlan": "Добавить недельный план",
+      "fullName": "ФИО"
+    },
     "notFoundPage": {
       "pageNotFound": "Page not found"
     }

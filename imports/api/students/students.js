@@ -3,9 +3,11 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Factory } from 'meteor/factory';
 import { Professions } from '../professions/professions';
 import { Users } from '../users/users';
+import {_} from 'lodash';
 
 export const Students = new Mongo.Collection('students', {
   transform: (student)=>{
+    const professions = [];
     let profession2student = Profession2Student.find(
         {
           studentId: student._id
@@ -13,25 +15,21 @@ export const Students = new Mongo.Collection('students', {
         { sort: { createAt: -1 }}
     ).fetch();
     profession2student.forEach((profession)=>{
-      profession.name = Professions.findOne({_id: profession.profId}).name;
-      profession.controller = Users.findOne({_id: profession.controllerId});
-      profession.master = Users.findOne({_id: profession.masterId});
-      profession.instructor = Users.findOne({_id: profession.instructorId});
+      let item = {};
+      item._id = profession.profId;
+      item.name = Professions.findOne({_id: profession.profId}).name;
+      item.controller = Users.findOne({_id: profession.controllerId});
+      item.master = Users.findOne({_id: profession.masterId});
+      item.instructor = Users.findOne({_id: profession.instructorId});
+      item.gild = profession.gild;
+      item.sector = profession.sector;
+      item.isClosed = profession.isClosed;
+      item.createAt = profession.createAt;
+      professions.push(item);
     });
-    let currentProfession = Profession2Student.findOne(
-        {
-          studentId: student._id,
-          isClosed: false
-        },
-        { sort: { createAt: -1 }}
-    );
+    let currentProfession = _.findLast(professions, {isClosed: false});
     if(currentProfession) {
-      student.currentProfession = Professions.findOne({_id: currentProfession.profId});
-      student.currentProfession.controller = Users.findOne({_id: currentProfession.controllerId});
-      student.currentProfession.master = Users.findOne({_id: currentProfession.masterId});
-      student.currentProfession.instructor = Users.findOne({_id: currentProfession.instructorId});
-      student.currentProfession.gild = currentProfession.gild;
-      student.currentProfession.sector = currentProfession.sector;
+      student.currentProfession = currentProfession;
     } else {
       student.currentProfession = {
         _id: null,
@@ -39,7 +37,7 @@ export const Students = new Mongo.Collection('students', {
         sector: ""
       }
     }
-    student.professions = profession2student;
+    student.professions = professions;
     return student;
   }
 });
@@ -90,14 +88,7 @@ Profession2Student.schema = new SimpleSchema({
   },
   isClosed: {
     type: Boolean,
-    defaultValue: false,
-    autoValue: function() {
-      if (this.isInsert) {
-        return false;
-      } else {
-        this.unset();
-      }
-    }
+    defaultValue: false
   },
 });
 
