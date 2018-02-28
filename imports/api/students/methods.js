@@ -35,7 +35,7 @@ export const update =  new ValidatedMethod({
     "student.name": { type: String },
     "student.speciality": { type: String },
     "student.year": { type: String },
-    "student.currentProfession": {type: Object, optional: true},
+    "student.currentProfession": {type: Object, optional: true, blackbox: true},
     "student.currentProfession._id": {type: String},
     "student.currentProfession.gild": {type: String},
     "student.currentProfession.sector": {type: String},
@@ -47,7 +47,7 @@ export const update =  new ValidatedMethod({
   run: function ({id, student}) {
     let {currentProfession, ...studentData} = student;
     if(currentProfession && currentProfession._id !== null){
-      Profession2Student.update({studentId: id, profId: currentProfession._id, isClosed: false},
+      Profession2Student.update({studentId: id, isClosed: false},
         {$set: {
             studentId: id,
             profId: currentProfession._id,
