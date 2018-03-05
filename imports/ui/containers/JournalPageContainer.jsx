@@ -10,7 +10,6 @@ const JournalPageContainer = withTracker( () => {
   const loading = !studentsHandler.ready() || !professionHandler.ready() || !studentProfessionHandler.ready();
   const students = Students.find({});
   const listExists = !loading && !!students;
-  console.log(students.fetch());
   return {
     loading,
     listExists: true,

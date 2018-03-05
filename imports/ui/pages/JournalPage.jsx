@@ -56,13 +56,21 @@ export default class JournalPage extends BaseComponent {
   state = {
     message: '',
     open: false,
-    selected: null
+    selected: null,
+    selectedDate: new Date(),
+    students: []
   };
 
   constructor(props) {
     super(props);
     this.state = {...this.state, editing: undefined, open: false, value: "" };
     this.points = [];
+  }
+
+  componentWillReceiveProps(props){
+    this.setState({
+      students: props.students
+    })
   }
 
   onClickAddedButton = () => {
@@ -72,8 +80,21 @@ export default class JournalPage extends BaseComponent {
         message: i18n.__('pages.JournalPage.selectWeek')
       })
     }
+    let error = false;
     let obj = serialize(this.form, { hash: true });
-    console.log(obj)
+    for(let key in obj.points){
+      let points = obj.points[key];
+      if(points.length < 5) {
+        this.setState({
+          open: true,
+          message: i18n.__('pages.JournalPage.pointsCountError')
+        });
+        error = true;
+        break;
+      }
+    }
+    if(error) return false;
+    insert.call(this.state.selected, obj.points);
   };
 
   handleChange = (event) => {
@@ -118,11 +139,13 @@ export default class JournalPage extends BaseComponent {
         start: startDate.toDate(),
         end: endDate.toDate()
       }
-    })
+    });
+
   };
 
   render(){
-    const { loading, listExists, students } = this.props;
+    const { loading, listExists } = this.props;
+    const { students } = this.state;
     if (!listExists || !Meteor.userId()) {
       return <NotFoundPage />;
     }
@@ -270,9 +293,7 @@ export default class JournalPage extends BaseComponent {
               </TableRow>
             </TableHeader>
             <TableBody displayRowCheckbox={false} style={styles.tableWrapperStyle}>
-              {students.map((student) => {
-                this.points[student._id] = [];
-                return (
+              {students.map((student) => (
                   <TableRow key={student._id}>
                     <TableRowColumn style={{width: "200px"}}>
                       {student.name}
@@ -283,7 +304,6 @@ export default class JournalPage extends BaseComponent {
                         type={"number"}
                         min={0}
                         max={5}
-                        ref={(input) => {this.points[student._id][0] = input }}
                       />
                     </TableRowColumn>
                     <TableRowColumn style={styles.tableHeader}>
@@ -292,7 +312,6 @@ export default class JournalPage extends BaseComponent {
                           type={"number"}
                           min={0}
                           max={5}
-                          ref={(input) => {this.points[student._id][1] = input }}
                       />
                     </TableRowColumn>
                     <TableRowColumn style={styles.tableHeader}>
@@ -301,7 +320,6 @@ export default class JournalPage extends BaseComponent {
                           type={"number"}
                           min={0}
                           max={5}
-                          ref={input => this.points[student._id][2] = input}
                       />
                     </TableRowColumn>
                     <TableRowColumn style={styles.tableHeader}>
@@ -310,7 +328,6 @@ export default class JournalPage extends BaseComponent {
                           type={"number"}
                           min={0}
                           max={5}
-                          ref={input => this.points[student._id][3] = input}
                       />
                     </TableRowColumn>
                     <TableRowColumn style={styles.tableHeader}>
@@ -319,11 +336,10 @@ export default class JournalPage extends BaseComponent {
                           type={"number"}
                           min={0}
                           max={5}
-                          ref={input => this.points[student._id][4] = input}
                       />
                     </TableRowColumn>
                   </TableRow>
-              )})}
+              ))}
             </TableBody>
           </Table>
           </form>
