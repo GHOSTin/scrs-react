@@ -4,6 +4,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 
 import {Students, Profession2Student} from "./students";
+import {Journal} from "../journal/journal";
 
 const TutorSchema = new SimpleSchema({
   "_id":{type: String},
@@ -47,6 +48,7 @@ export const update =  new ValidatedMethod({
   run: function ({id, student}) {
     let {currentProfession, ...studentData} = student;
     if(currentProfession && currentProfession._id !== null){
+      let prevProfession = Profession2Student.findOne({studentId: id, isClosed: false});
       Profession2Student.update({studentId: id, isClosed: false},
         {$set: {
             studentId: id,
@@ -59,6 +61,12 @@ export const update =  new ValidatedMethod({
             isClosed: false
           }
         }, {upsert: true});
+      if(prevProfession){
+        Journal.update({studentId: id, profId: prevProfession.profId}, {$set: {
+            profId: currentProfession._id
+          }
+        }, {multi: true})
+      }
     }
     Students.update(id, {$set: {...studentData}});
     return true;

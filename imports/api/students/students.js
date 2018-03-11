@@ -3,6 +3,7 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Factory } from 'meteor/factory';
 import { Professions } from '../professions/professions';
 import { Users } from '../users/users';
+import { Journal } from '../journal/journal';
 import {_} from 'lodash';
 
 export const Students = new Mongo.Collection('students', {
@@ -25,6 +26,10 @@ export const Students = new Mongo.Collection('students', {
       item.sector = profession.sector;
       item.isClosed = profession.isClosed;
       item.createAt = profession.createAt;
+      let JournalList = Journal.find(
+          {studentId:student._id, profId:profession.profId},
+          {fields: {points: 1, startDate: 1, endDate: 1}});
+      item.journal = JournalList.fetch();
       professions.push(item);
     });
     let currentProfession = _.findLast(professions, {isClosed: false});

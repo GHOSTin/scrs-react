@@ -9,4 +9,6 @@ import '../../api/professions/methods.js';
 import '../../api/professions/server/publications.js';
 import '../../api/students/methods';
 import '../../api/students/server/publications.js';
+import '../../api/journal/methods';
+import '../../api/journal/server/publications.js';
 import '../../api/languages/methods.js';

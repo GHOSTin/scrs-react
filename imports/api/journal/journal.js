@@ -1,7 +1,6 @@
 import { Mongo } from 'meteor/mongo';
 import { Factory } from 'meteor/factory';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-import faker from "faker";
 
 export const Journal = new Mongo.Collection('journal');
 
@@ -12,14 +11,19 @@ Journal.deny({
 });
 
 Journal.schema = new SimpleSchema({
-  listId: {
+  studentId: {
     type: String,
     regEx: SimpleSchema.RegEx.Id,
     denyUpdate: true,
   },
+  profId: {
+    type: String,
+    regEx: SimpleSchema.RegEx.Id,
+  },
   points: {
-    type: Array,
-    max: 5,
+    type: [String],
+    minCount: 5,
+    maxCount: 5
   },
   startDate: {
     type: Date
@@ -28,3 +32,15 @@ Journal.schema = new SimpleSchema({
     type: Date
   },
 });
+
+Journal.attachSchema(Journal.schema);
+
+Journal.publicFields = {
+  studentId: 1,
+  profId: 1,
+  points: 1,
+  startDate: 1,
+  endDate: 1,
+};
+
+Factory.define('journal', Journal, {});
