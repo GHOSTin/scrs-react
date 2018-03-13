@@ -32,3 +32,15 @@ export const insert =  new ValidatedMethod({
     return results;
   }
 });
+
+export const close = new ValidatedMethod({
+  name: 'journal.close.profession',
+  validate: new SimpleSchema({
+    "studentId": { type: String, regEx: SimpleSchema.RegEx.Id },
+    "profId": { type: String, regEx: SimpleSchema.RegEx.Id }
+  }).validator(),
+  run: function({studentId, profId}) {
+    Profession2Student.update({studentId, profId}, {$set: {isClosed: true}});
+    return studentId;
+  }
+});

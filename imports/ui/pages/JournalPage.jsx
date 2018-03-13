@@ -7,14 +7,14 @@ import {Journal} from "../../api/journal/journal";
 import BaseComponent from '../components/BaseComponent.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import Message from '../components/Message.jsx';
-import IconButton from 'material-ui/IconButton';
-import ContentRemove from 'material-ui/svg-icons/content/remove';
+import FlatButton from 'material-ui/FlatButton';
+import ContentRemove from 'material-ui/svg-icons/content/block';
 import {Table, TableHeader, TableBody, TableRow, TableHeaderColumn, TableRowColumn} from 'material-ui/Table';
-import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
+import Dialog from "material-ui/Dialog";
 import RaisedButton from 'material-ui/RaisedButton';
 import {teal500, teal400, teal300, fullWhite} from 'material-ui/styles/colors';
 import Snackbar from 'material-ui/Snackbar';
-import {Grid, Row, Col} from 'react-flexbox-grid';
+import {Row, Col} from 'react-flexbox-grid';
 import InfiniteCalendar, {
   Calendar,
   withRange,
@@ -24,7 +24,7 @@ import 'react-infinite-calendar/styles.css';
 import NumberField from '../components/NumberField.jsx';
 import serialize from 'form-serialize';
 
-import {insert} from "../../api/journal/methods";
+import {insert, close} from "../../api/journal/methods";
 
 const theme={
   selectionColor: teal300,
@@ -50,8 +50,13 @@ const styles = {
     width: "800px",
   },
   tableHeader: {
-    width: "8%",
     whiteSpace: "normal"
+  },
+  closeButton: {
+    minWidth: "60px"
+  },
+  dialogStyle: {
+    width: 300
   }
 };
 
@@ -122,13 +127,15 @@ export default class JournalPage extends BaseComponent {
   state = {
     message: '',
     open: false,
+    openDialog: false,
     selected: null,
-    students: []
+    students: [],
+    selectedStudent: null
   };
 
   constructor(props) {
     super(props);
-    this.state = {...this.state, editing: undefined, open: false, value: "" };
+    this.state = {...this.state, students: props.students};
     this.points = {};
   }
 
@@ -166,6 +173,10 @@ export default class JournalPage extends BaseComponent {
     insert.call({...this.state.selected, data}, (err, res) => {
       if (err) {
         handleError(err.error);
+        this.setState({
+          message: err.error,
+          open: true
+        });
       }
       for (const item of res) {
         let journal = Journal.findOne({_id: item});
@@ -184,38 +195,53 @@ export default class JournalPage extends BaseComponent {
       }
     });
     this.setState({
-      selected: null
+      selected: null,
+      message: "Запись прошла успешно",
+      open: true
     });
   };
 
-  handleChange = (event) => {
+  handleClose = () => {
     this.setState({
-      value: event.target.value,
+      openDialog: false,
+      selectedStudent: null
     })
   };
 
   handleRequestClose = () => {
     this.setState({
-      open: false
+      open: false,
     });
   };
 
-  onClickRemove = (profession) => {
-    remove.call({id: profession._id}, (error)=>{
-      this.setState({
-        open: true
-      });
-      if(error){
+  handleRequestCloseProfession = (student) => {
+    this.setState({
+      openDialog: true,
+      selectedStudent: student
+    });
+  };
+
+  onClickRemove = () => {
+    close.call(
+      {studentId: this.state.selectedStudent._id, profId: this.state.selectedStudent.currentProfession._id},
+      (err, res)=>{
         this.setState({
-          message: 'Ошибка при удалении профессии'
+          openDialog: false,
+          open: true,
+          selectedStudent: null
+        })
+        if(err){
+          this.setState({
+            message: 'Ошибка при откреплении студента.'
+          });
+          return false;
+        }
+        _.remove(this.state.students, (item) => (item._id === res));
+        this.setState({
+          message: 'Открепление прошло успешно.'
         });
-        return false;
-      }
-      this.setState({
-        message: 'Удаление прошло успешно.'
+        return true;
       });
-      return true;
-    })
   };
 
   onSelectDate = (selectedDate) => {
@@ -248,6 +274,18 @@ export default class JournalPage extends BaseComponent {
     if (!listExists || !Meteor.userId()) {
       return <NotFoundPage />;
     }
+
+    const actions = [
+      <FlatButton
+          label="Отмена"
+          onClick={this.handleClose}
+      />,
+      <FlatButton
+          label="Окончить"
+          primary={true}
+          onClick={this.onClickRemove}
+      />,
+    ];
 
     const TableHeaderData = [
       {
@@ -316,9 +354,10 @@ export default class JournalPage extends BaseComponent {
           >
             <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
               <TableRow key={"header"}>
-                <TableHeaderColumn style={{width: "200px"}}>
+                <TableHeaderColumn style={{width: "300px"}}>
                   ФИО
                 </TableHeaderColumn>
+                <TableHeaderColumn style={styles.tableHeader} />
                 {TableHeaderData.map((row, index) => (
                     <TableHeaderColumn
                       tooltip={row.tooltip}
@@ -333,8 +372,17 @@ export default class JournalPage extends BaseComponent {
             <TableBody displayRowCheckbox={false} style={styles.tableWrapperStyle}>
               {filteredStudents.map((student) => (
                   <TableRow key={student._id}>
-                    <TableRowColumn style={{width: "200px"}}>
+                    <TableRowColumn style={{width: "300px"}}>
                       {student.name}
+                    </TableRowColumn>
+                    <TableRowColumn>
+                      <RaisedButton
+                          backgroundColor={teal400}
+                          icon={<ContentRemove />}
+                          style={styles.closeButton}
+                          labelColor={fullWhite}
+                          onClick={() => this.handleRequestCloseProfession(student)}
+                      />
                     </TableRowColumn>
                     <TableRowColumn style={styles.tableHeader}>
                       <NumberField
@@ -406,6 +454,13 @@ export default class JournalPage extends BaseComponent {
               message={this.state.message}
               autoHideDuration={4000}
               onRequestClose={this.handleRequestClose}
+          />
+          <Dialog
+              title="Окончить обучение"
+              actions={actions}
+              modal={true}
+              open={this.state.openDialog}
+              contentStyle={styles.dialogStyle}
           />
         </div>
       </div>
