@@ -1,6 +1,8 @@
 import React from 'react';
 import i18n from 'meteor/universe:i18n';
 import moment from 'moment';
+import update from 'react-addons-update';
+import {_} from 'lodash';
 import {Journal} from "../../api/journal/journal";
 import BaseComponent from '../components/BaseComponent.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
@@ -167,7 +169,13 @@ export default class JournalPage extends BaseComponent {
       }
       for (const item of res) {
         let journal = Journal.findOne({_id: item});
-
+        let student = journal.studentId;
+        let index = _.findIndex(this.state.students, (item) => (item._id === student));
+        this.setState({
+          students: update(this.state.students, {[index]: {currentProfession: {journal: {$push: [{
+                      ...journal
+                  }]}}}})
+        })
       }
     });
     _.forEach(this.points, (e)=>{
