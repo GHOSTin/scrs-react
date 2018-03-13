@@ -268,7 +268,7 @@ export default class JournalPage extends BaseComponent {
                 return moment(journal.startDate).isSame(moment(this.state.selected.start))
               }) :
               [];
-          return count.length === 0;
+          return count.length === 0 || student.currentProfession.journal.length >= 12;
         }
     );
     if (!listExists || !Meteor.userId()) {
