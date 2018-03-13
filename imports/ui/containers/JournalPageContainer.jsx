@@ -5,13 +5,13 @@ import JournalPage from '../pages/JournalPage';
 
 const JournalPageContainer = withTracker( () => {
   const studentsHandler = Meteor.subscribe('students.masters');
-  const studentProfessionHandler = Meteor.subscribe('students.professions.list');
-  const professionHandler = Meteor.subscribe('professions');
-  const journalHandler = Meteor.subscribe('journal');
-  const loading = !studentsHandler.ready()
-      || !professionHandler.ready()
-      || !journalHandler.ready()
-      || !studentProfessionHandler.ready();
+  //const studentProfessionHandler = Meteor.subscribe('students.professions.list');
+  //const professionHandler = Meteor.subscribe('professions');
+  //const journalHandler = Meteor.subscribe('journal');
+  const loading = !studentsHandler.ready();
+      //|| !professionHandler.ready()
+      //|| !journalHandler.ready()
+      //|| !studentProfessionHandler.ready();
   const students = Students.find({});
   const listExists = !loading && !!students;
   return {

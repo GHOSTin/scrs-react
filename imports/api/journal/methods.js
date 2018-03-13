@@ -16,17 +16,19 @@ export const insert =  new ValidatedMethod({
     "data.$.points": {type: [String], minCount:5, maxCount: 5}
   }).validator(),
   run: function ({start, end, data}) {
+    let results = [];
     data.forEach(item => {
       let {studentId, points} = item,
           profId = Profession2Student.findOne({studentId, isClosed: false}).profId;
-      Journal.insert({
+      let journal = Journal.insert({
         studentId,
         profId,
         points,
         startDate: start,
         endDate: end
       });
+      results.push(journal);
     });
-    return true;
+    return results;
   }
 });

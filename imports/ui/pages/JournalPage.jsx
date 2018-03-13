@@ -1,6 +1,7 @@
 import React from 'react';
 import i18n from 'meteor/universe:i18n';
 import moment from 'moment';
+import {Journal} from "../../api/journal/journal";
 import BaseComponent from '../components/BaseComponent.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import Message from '../components/Message.jsx';
@@ -160,10 +161,19 @@ export default class JournalPage extends BaseComponent {
       }
     }
     if(error) return false;
-    console.log(data);
-    insert.call({...this.state.selected, data});
+    insert.call({...this.state.selected, data}, (err, res) => {
+      if (err) {
+        handleError(err.error);
+      }
+      for (const item of res) {
+        let journal = Journal.findOne({_id: item});
+
+      }
+    });
     _.forEach(this.points, (e)=>{
-      e.setState({value: ""});
+      if (e) {
+        e.setState({value: ""});
+      }
     });
     this.setState({
       selected: null

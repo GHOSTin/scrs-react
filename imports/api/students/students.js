@@ -11,7 +11,8 @@ export const Students = new Mongo.Collection('students', {
     const professions = [];
     let profession2student = Profession2Student.find(
         {
-          studentId: student._id
+          studentId: student._id,
+          isClosed: false
         },
         { sort: { createAt: -1 }}
     ).fetch();
@@ -26,10 +27,9 @@ export const Students = new Mongo.Collection('students', {
       item.sector = profession.sector;
       item.isClosed = profession.isClosed;
       item.createAt = profession.createAt;
-      let JournalList = Journal.find(
+      item.journal = Journal.find(
           {studentId:student._id, profId:profession.profId},
-          {fields: {points: 1, startDate: 1, endDate: 1}});
-      item.journal = JournalList.fetch();
+          {fields: {points: 1, startDate: 1, endDate: 1}}).fetch();
       professions.push(item);
     });
     let currentProfession = _.findLast(professions, {isClosed: false});
