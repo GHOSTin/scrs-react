@@ -229,7 +229,7 @@ export default class JournalPage extends BaseComponent {
           openDialog: false,
           open: true,
           selectedStudent: null
-        })
+        });
         if(err){
           this.setState({
             message: 'Ошибка при откреплении студента.'
