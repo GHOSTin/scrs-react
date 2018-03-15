@@ -1,5 +1,5 @@
 import React from 'react';
-import { Router, Route, browserHistory } from 'react-router';
+import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import i18n from 'meteor/universe:i18n';
 
 // route components
@@ -11,12 +11,14 @@ import AuthPageSignIn from '../../ui/pages/AuthPageSignIn.jsx';
 import AuthPageJoin from '../../ui/pages/AuthPageJoin.jsx';
 import NotFoundPage from '../../ui/pages/NotFoundPage.jsx';
 import JournalPageContainer from "../../ui/containers/JournalPageContainer";
+import MainPageContainer from "../../ui/containers/MainPageContainer";
 
 i18n.setLocale('ru');
 
 export const renderRoutes = () => (
   <Router history={browserHistory}>
     <Route path="/" component={AppContainer}>
+      <IndexRoute component={MainPageContainer} />
       <Route path="professions" component={ProfessionsPageContainer} />
       <Route path="users" component={UsersPageContainer} />
       <Route path="students" component={StudentsPageContainer} />
