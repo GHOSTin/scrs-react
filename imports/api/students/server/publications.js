@@ -116,7 +116,6 @@ publishComposite('students.summary', {
               return e.studentId;
             });
       }
-      console.log(students);
       if (!_.isEmpty(students)) {
         query = {_id: {$in: students}};
         return Students.find(query);
