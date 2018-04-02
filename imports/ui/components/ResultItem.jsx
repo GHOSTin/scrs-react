@@ -2,6 +2,7 @@ import React from 'react';
 import BaseComponent from '../components/BaseComponent.jsx';
 import {Card, CardHeader, CardText} from "material-ui/Card";
 import {Table, TableBody, TableRow, TableRowColumn} from "material-ui/Table";
+import ProfessionItem from '../components/ProfessionItem';
 import {Profession2Student} from "../../api/students/students";
 import {Professions} from "../../api/professions/professions";
 import {Journal} from "../../api/journal/journal";
@@ -42,25 +43,30 @@ export default class ResultItem extends BaseComponent {
     return true;
   };
 
+  getProfessions = (student) => {
+    return Profession2Student.find({studentId: student}).fetch();
+  };
+
   render(){
     let student = this.props.student;
     let {profession, journal} = this.currentProfession(student._id);
+    let professionsList = this.getProfessions(student._id);
     return <Card>
       <CardHeader
           title={
             <Table selectable={false}  >
               <TableBody displayRowCheckbox={false}>
                 <TableRow>
-                  <TableRowColumn>
+                  <TableRowColumn style={{width: "20%", whiteSpace: "normal"}}>
                     {student.name}
                   </TableRowColumn>
-                  <TableRowColumn>
+                  <TableRowColumn style={{whiteSpace: "normal"}}>
                     {student.speciality}
                   </TableRowColumn>
-                  <TableRowColumn>
+                  <TableRowColumn style={{width: 120}}>
                     {student.year}
                   </TableRowColumn>
-                  <TableRowColumn style={{width: 250}}>
+                  <TableRowColumn style={{width: "30%", whiteSpace: "normal"}}>
                     {profession? profession.name: ""}
                   </TableRowColumn>
                   <TableRowColumn style={{width: 60}}>
@@ -75,10 +81,9 @@ export default class ResultItem extends BaseComponent {
           style={{padding: "1px 0"}}
       />
       <CardText expandable={true}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-        Donec mattis pretium massa. Aliquam erat volutpat. Nulla facilisi.
-        Donec vulputate interdum sollicitudin. Nunc lacinia auctor quam sed pellentesque.
-        Aliquam dui mauris, mattis quis lacus id, pellentesque lobortis odio.
+        {professionsList.map(
+            profession => <ProfessionItem profession={profession} key={profession._id} />
+        )}
       </CardText>
     </Card>
   }

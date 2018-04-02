@@ -67,3 +67,4 @@ shell-server
 audit-argument-checks@1.0.7
 dynamic-import
 alanning:roles
+orionsoft:react-meteor-data
