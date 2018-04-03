@@ -89,21 +89,21 @@ publishComposite('students.summary', {
 
     if (this.userId) {
       if (Roles.userIsInRole(this.userId, 'master')) {
-        students = Profession2Student.find({masterId: this.userId})
+        students = Profession2Student.find({masterId: this.userId, isClosed: false})
             .fetch()
             .map(function (e) {
               return e.studentId;
             });
       }
       if (Roles.userIsInRole(this.userId, 'controller')) {
-        students = Profession2Student.find({controllerId: this.userId})
+        students = Profession2Student.find({controllerId: this.userId, isClosed: false})
             .fetch()
             .map(function (e) {
               return e.studentId;
             });
       }
       if (Roles.userIsInRole(this.userId, 'instructor')) {
-        students = Profession2Student.find({instructorId: this.userId})
+        students = Profession2Student.find({instructorId: this.userId, isClosed: false})
             .fetch()
             .map(function (e) {
               return e.studentId;
