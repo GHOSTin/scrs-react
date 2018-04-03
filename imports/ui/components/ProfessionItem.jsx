@@ -1,84 +1,123 @@
 import React from 'react';
 import BaseComponent from '../components/BaseComponent.jsx';
 import {Card, CardHeader, CardText} from "material-ui/Card";
+import {Table, TableBody, TableRow, TableRowColumn, TableHeader, TableHeaderColumn} from "material-ui/Table";
 import {Profession2Student} from "../../api/students/students";
 import {Professions} from "../../api/professions/professions";
 import {Journal} from "../../api/journal/journal";
-import {greenA700, red500} from "material-ui/styles/colors";
-import {List, ListItem} from "material-ui/List";
-import {Table, TableBody, TableRow, TableRowColumn} from "material-ui/Table";
-import {withData} from 'meteor/orionsoft:react-meteor-data'
 
+import ActionDone from 'material-ui/svg-icons/action/done';
+import ContentBlock from 'material-ui/svg-icons/content/block';
+import {greenA700, red500} from 'material-ui/styles/colors';
 
-const propTypes = {
-  profession: React.PropTypes.object.isRequired,
-  isLoading: React.PropTypes.bool,
-  item: React.PropTypes.object
-};
+import moment from 'moment';
+import {Divider} from "material-ui";
+
+import {withData} from 'meteor/orionsoft:react-meteor-data';
+
 
 @withData(({profession}) => {
-  const handler = Meteor.subscribe('professions');
-  const isLoading = !handler.ready();
-  const item = Professions.findOne(profession.profId);
-  const journal = Journal.findOne({profId: profession.profId, studentId: profession.studentId});
-  return {isLoading, item, journal}
+  return {
+    item: Professions.findOne({_id: profession.profId}),
+    journal: Journal.find({studentId: profession.studentId, profId: profession.profId}, {$sort: {startDate: 1}}).fetch()
+  };
 })
 export default class ProfessionItem extends BaseComponent{
   constructor(props){
     super(props);
+    this.state = {
+      expanded: false,
+    };
+  }
+
+  handleExpandChange = (expanded) => {
+    this.setState({expanded: expanded});
+  };
+
+  handleTableRowClick = () => {
+    this.setState({expanded: !this.state.expanded});
+  };
+
+  getAvgPoints = () => {
+    this.props.journal.forEach((item)=>{})
   }
 
   render(){
-    let p2s = this.props.profession;
-    return <Card>
-      <CardHeader
-        title={
-          <List>
-            <ListItem
-                primaryText={this.props.item.name}
-                disabled={true}
-            />
-            <ListItem
-              style={{padding: 0}}
-              primaryText={
-                <Table selectable={false} >
-                  <TableBody displayRowCheckbox={false}>
+    const {journal} = this.props;
+    return (
+        <Card expanded={this.state.expanded} onExpandChange={this.handleExpandChange}>
+          <CardHeader
+              title={this.props.item.name}
+              subtitle={this.state.expanded?"":
+                <Table selectable={false} onCellClick={this.handleTableRowClick} style={{padding: 0}}>
+                  <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
                     <TableRow>
-                      <TableRowColumn>
-                        Журнал
-                      </TableRowColumn>
-                      <TableRowColumn>
+                      <TableHeaderColumn>
+                        Средний балл
+                      </TableHeaderColumn>
+                      <TableHeaderColumn>
                         оценка 1
-                      </TableRowColumn>
-                      <TableRowColumn>
-                        оценка 2
-                      </TableRowColumn>
-                      <TableRowColumn>
-                        оценка 3
-                      </TableRowColumn>
-                      <TableRowColumn>
-                        оценка 4
-                      </TableRowColumn>
-                      <TableRowColumn>
-                        оценка 5
-                      </TableRowColumn>
+                      </TableHeaderColumn>
+                      <TableHeaderColumn>
+                        оценка 1
+                      </TableHeaderColumn>
+                      <TableHeaderColumn>
+                        оценка 1
+                      </TableHeaderColumn>
+                      <TableHeaderColumn>
+                        оценка 1
+                      </TableHeaderColumn>
+                      <TableHeaderColumn>
+                        оценка 1
+                      </TableHeaderColumn>
                     </TableRow>
-                  </TableBody>
+                  </TableHeader>
                 </Table>
               }
-              disabled={true}
-            />
-          </List>
-        }
-        actAsExpander={true}
-        showExpandableButton={true}
-        style={{padding: "1px 0"}}
-      />
-      <CardText expandable={true}>
-
-      </CardText>
-    </Card>
+              actAsExpander={true}
+              showExpandableButton={true}
+          />
+          <CardText expandable={true}>
+            <Table selectable={false} onCellClick={this.handleTableRowClick} style={{padding: 0}}>
+              <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
+                <TableRow>
+                  <TableHeaderColumn>
+                    Средний балл
+                  </TableHeaderColumn>
+                  <TableHeaderColumn>
+                    оценка 1
+                  </TableHeaderColumn>
+                  <TableHeaderColumn>
+                    оценка 1
+                  </TableHeaderColumn>
+                  <TableHeaderColumn>
+                    оценка 1
+                  </TableHeaderColumn>
+                  <TableHeaderColumn>
+                    оценка 1
+                  </TableHeaderColumn>
+                  <TableHeaderColumn>
+                    оценка 1
+                  </TableHeaderColumn>
+                </TableRow>
+              </TableHeader>
+              <TableBody displayRowCheckbox={false}>
+                {journal.map((list, index)=>
+                  <TableRow key={list._id}>
+                    <TableRowColumn>
+                      Неделя {index+1}
+                    </TableRowColumn>
+                    {list.points.map((point, index)=>
+                      <TableRowColumn key={index}>
+                        {point}
+                      </TableRowColumn>
+                    )}
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardText>
+        </Card>
+    )
   }
 }
-
-ProfessionItem.propTypes = propTypes;

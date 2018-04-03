@@ -8,15 +8,16 @@
     "chimp-watch": "chimp --ddp=http://localhost:3000 --watch --mocha --path=tests"
   },
   "dependencies": {
-    "@babel/runtime": "^7.0.0-beta.40",
+    "@babel/runtime": "^7.0.0-beta.42",
     "autoprefixer": "^6.7.7",
     "babel-runtime": "^6.26.0",
     "classnames": "^2.2.5",
+    "ee-first": "^1.1.1",
     "faker": "^3.1.0",
     "intl": "^1.2.5",
     "lodash": "^4.17.5",
     "material-ui": "^0.20.0",
-    "material-ui-superselectfield": "^1.8.9",
+    "material-ui-superselectfield": "^1.9.0",
     "papaparse": "^4.3.7",
     "react": "^15.6.2",
     "react-addons-pure-render-mixin": "^15.6.2",
