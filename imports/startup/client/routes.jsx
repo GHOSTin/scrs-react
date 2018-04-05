@@ -12,6 +12,7 @@ import AuthPageJoin from '../../ui/pages/AuthPageJoin.jsx';
 import NotFoundPage from '../../ui/pages/NotFoundPage.jsx';
 import JournalPageContainer from "../../ui/containers/JournalPageContainer";
 import MainPageContainer from "../../ui/containers/MainPageContainer";
+import ReportsPageContainer from "../../ui/containers/ReportsPageContainer";
 
 i18n.setLocale('ru');
 
@@ -22,6 +23,7 @@ export const renderRoutes = () => (
       <Route path="professions" component={ProfessionsPageContainer} />
       <Route path="users" component={UsersPageContainer} />
       <Route path="students" component={StudentsPageContainer} />
+      <Route path="reports" component={ReportsPageContainer} />
       <Route path="journal" component={JournalPageContainer} />
       <Route path="signin" component={AuthPageSignIn} />
       <Route path="join" component={AuthPageJoin} />
