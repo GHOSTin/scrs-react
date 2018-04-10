@@ -26,7 +26,6 @@ export const renderRoutes = () => (
       <Route path="reports" component={ReportsPageContainer} />
       <Route path="journal" component={JournalPageContainer} />
       <Route path="signin" component={AuthPageSignIn} />
-      <Route path="join" component={AuthPageJoin} />
       <Route path="*" component={NotFoundPage} />
     </Route>
   </Router>

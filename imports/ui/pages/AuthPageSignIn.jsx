@@ -92,13 +92,7 @@ export default class SignInPage extends BaseComponent {
       </div>
     );
 
-    const link = (
-      <Link to="/join" className="link-auth-alt">
-        {i18n.__('pages.authPageSignIn.needAccount')}
-      </Link>
-    );
-
-    return <AuthPage content={content} link={link} />;
+    return <AuthPage content={content}/>;
   }
 }
 

@@ -53,18 +53,24 @@
       "haveAccountSignIn": "Have an account? Sign in"
     },
     "authPageSignIn": {
-      "emailRequired": "Email required",
-      "passwordRequired": "Password required",
-      "signIn": "Sign In.",
-      "signInReason": "Signing in allows you to view private lists",
-      "yourEmail": "Your Email",
-      "password": "Password",
-      "signInButton": "Sign in",
-      "needAccount": "Need an account? Join Now."
+      "emailRequired": "Введите имя пользователя",
+      "passwordRequired": "Введите пароль",
+      "signIn": "Вход",
+      "signInReason": "ББМ Проф. Дневник практик.",
+      "yourEmail": "Имя пользователя",
+      "password": "Пароль",
+      "signInButton": "Вход",
+      "needAccount": ""
     },
     "UsersPage": {
       "loading": "Загрузка пользователей...",
       "confirmDelete": "Вы действительно хотите удалить пользователя?"
+    },
+    "ProfessionsPage": {
+      "loading": "Загрузка профессий...",
+      "Add": "Добавить",
+      "addAbove": "Добавьте или импортируйте их.",
+      "noProfessions": "Отсутствуют записи о профессиях"
     },
     "StudentsPage": {
       "loading": "Загрузка списка студентов...",
@@ -84,7 +90,7 @@
       "fullName": "ФИО"
     },
     "notFoundPage": {
-      "pageNotFound": "Page not found"
+      "pageNotFound": "Страница не найдена"
     }
   },
   "api": {

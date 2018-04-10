@@ -63,7 +63,7 @@ export default class UsersPage extends BaseComponent {
   render() {
     const { loading, listExists, users } = this.props;
 
-    if (!listExists) {
+    if (!listExists || !Roles.userIsInRole(Meteor.user(), 'admin')) {
       return <NotFoundPage />;
     }
 

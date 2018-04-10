@@ -82,7 +82,7 @@ export default class ProfessionsPage extends BaseComponent {
 
   render(){
     const { loading, listExists, professions } = this.props;
-    if (!listExists) {
+    if (!listExists || !Roles.userIsInRole(Meteor.user(), 'admin')) {
       return <NotFoundPage />;
     }
     let ProfessionsList = (
