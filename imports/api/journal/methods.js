@@ -40,7 +40,7 @@ export const close = new ValidatedMethod({
     "profId": { type: String, regEx: SimpleSchema.RegEx.Id }
   }).validator(),
   run: function({studentId, profId}) {
-    Profession2Student.update({studentId, profId}, {$set: {isClosed: true}});
+    Profession2Student.update({studentId, profId, isClosed: false}, {$set: {isClosed: true}}, {multi: true});
     return studentId;
   }
 });

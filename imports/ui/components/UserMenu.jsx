@@ -3,9 +3,9 @@ import { Link } from 'react-router';
 import BaseComponent from './BaseComponent.jsx';
 import Divider from 'material-ui/Divider';
 import MenuItem from 'material-ui/MenuItem';
-import Group from 'material-ui/svg-icons/social/group';
-import School from 'material-ui/svg-icons/social/school';
-import Report from 'material-ui/svg-icons/action/description';
+import Group from '@material-ui/icons/Group';
+import School from '@material-ui/icons/School';
+import Report from '@material-ui/icons/Description';
 
 export default class UserMenu extends BaseComponent {
   constructor(props){

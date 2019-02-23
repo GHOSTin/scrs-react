@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
-import { Link } from 'react-router';
+import { Users } from '/imports/api/users/users';
 import i18n from 'meteor/universe:i18n';
 import BaseComponent from '../components/BaseComponent.jsx';
 
@@ -30,16 +30,21 @@ export default class SignInPage extends BaseComponent {
     if (Object.keys(errors).length) {
       return;
     }
-
-    Meteor.loginWithPassword(email, password, (err) => {
-      if (err) {
-        this.setState({
-          errors: { none: err.reason },
+    const exists = Users.findOne({username: email});
+    if(exists && exists.profile.status === "active") {
+        Meteor.loginWithPassword(email, password, (err) => {
+            if (err) {
+                this.setState({
+                    errors: {[err.error]: i18n.__(`pages.authPageSignIn.error-${err.error}`) || err.reason},
+                });
+            } else {
+                this.context.router.push('/');
+            }
         });
-      } else {
-        this.context.router.push('/');
-      }
-    });
+    } else {
+        errors.access = i18n.__('pages.authPageSignIn.accessDenied');
+        this.setState({ errors });
+    }
   }
 
   render() {

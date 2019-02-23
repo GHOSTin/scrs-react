@@ -36,6 +36,7 @@ export const update =  new ValidatedMethod({
     "student.name": { type: String },
     "student.speciality": { type: String },
     "student.year": { type: String },
+    "student.isArchive": { type: Boolean, defaultValue: false },
     "student.currentProfession": {type: Object, optional: true, blackbox: true},
     "student.currentProfession._id": {type: String},
     "student.currentProfession.gild": {type: String},
@@ -106,6 +107,27 @@ export const imports = new ValidatedMethod({
       } else {
         if(Meteor.isClient){
           console.error(`Отклонено. Студент "${student.name}" уже добавлен`);
+        }
+      }
+    });
+  }
+});
+
+export const archive = new ValidatedMethod({
+  name: 'students.archive',
+  validate: new SimpleSchema({
+    'students': { type: Array },
+    'students.$': { type: String },
+    'repair': {type: Boolean}
+  }).validator(),
+  run({students, repair}){
+    students.forEach((student)=>{
+      let exists = Students.findOne({_id: student});
+      if(exists) {
+        Students.update(student, {$set: {isArchive: repair}});
+      } else {
+        if(Meteor.isClient){
+          console.error(`Отклонено. Студент "${exists.name}" не найден`);
         }
       }
     });

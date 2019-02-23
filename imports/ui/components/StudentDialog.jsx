@@ -1,13 +1,18 @@
 import React from "react";
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
 import {_} from 'lodash';
 import BaseComponent from '../components/BaseComponent.jsx';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
+import Button from '@material-ui/core/Button';
 import TextField from 'material-ui/TextField';
 import Divider from 'material-ui/Divider';
-import {grey50, cyan500} from 'material-ui/styles/colors';
-import ActionFace from 'material-ui/svg-icons/action/face';
-import ArrowDown from 'material-ui/svg-icons/hardware/keyboard-arrow-down'
+import grey from '@material-ui/core/colors/grey';
+import cyan from '@material-ui/core/colors/cyan';
+const grey50 = grey['50'];
+const cyan500 = cyan['500'];
+import ActionFace from '@material-ui/icons/Face';
+import ArrowDown from '@material-ui/icons/KeyboardArrowDown'
 import Avatar from 'material-ui/Avatar';
 import SuperSelectField from 'material-ui-superselectfield'
 
@@ -15,6 +20,7 @@ import {Row, Col} from 'react-flexbox-grid';
 
 import {insert, update} from '/imports/api/students/methods'
 import {displayError} from '../helpers/errors.js';
+import FormControl from "@material-ui/core/FormControl";
 
 let DateTimeFormat;
 
@@ -51,7 +57,7 @@ const styles = {
   }
 };
 
-export default class StudentDialog extends BaseComponent {
+class StudentDialog extends BaseComponent {
   baseState = {
     student: {
       name: "",
@@ -115,7 +121,7 @@ export default class StudentDialog extends BaseComponent {
 
   handleSelectionProfession = (values, name) => {
     let state = {...this.state.student};
-    state['currentProfession'] = {...state.currentProfession, _id: values.value, name: values.label}
+    state['currentProfession'] = {...state.currentProfession, _id: values?.value, name: values?.label}
     this.setState({
       student: state
     });
@@ -123,12 +129,12 @@ export default class StudentDialog extends BaseComponent {
 
   handleSelectionTutor = (values, name) => {
     let state = {...this.state.student};
-    let user = {
+    let user = (values)?{
       _id: values.value,
       profile: {
         name: values.label
       }
-    };
+    }:null;
     state['currentProfession'] = {...state.currentProfession, [name]: user};
     this.setState({
       student: state
@@ -158,22 +164,27 @@ export default class StudentDialog extends BaseComponent {
   };
 
   render() {
+    const { classes } = this.props;
+    const {student} = this.state;
+
+    const error = (student.currentProfession && this.context.type==="attach")?
+      [ student.currentProfession.name, student.currentProfession.controller, student.currentProfession.master, student.currentProfession.instructor].filter(v => v).length !== 4 :
+      false;
+
     const actions = [
-      <FlatButton
-          label="Отмена"
-          primary={false}
-          keyboardFocused={false}
-          onClick={this.onHide}
-      />,
-      <FlatButton
-          label="Сохранить"
-          primary={true}
-          keyboardFocused={false}
-          onClick={this.handleSave}
-      />,
+      <Button
+        color={"default"}
+        disableFocusRipple={true}
+        onClick={this.onHide}
+      >Отмена</Button>,
+      <Button
+        disabled={error}
+        color={"primary"}
+        disableFocusRipple={true}
+        onClick={this.handleSave}
+      >Сохранить</Button>,
     ];
 
-    let {student} = this.state;
 
     const UserDialogTitle = (<div>
       <div className="avatar-photo"
@@ -208,12 +219,14 @@ export default class StudentDialog extends BaseComponent {
     ));
 
     const attachmentInfo = (
-    <div>
+    <React.Fragment>
     <h2 className="m-t">Данные о профессии</h2>
+    <FormControl required error={error} component="fieldset" className={classes.formControl}>
     <Row>
       <Col xs={12} md={12}>
         <SuperSelectField
           name="currentProfession"
+          errorText={error && !student.currentProfession?.name ? "Обязательно к заполнению": ""}
           floatingLabel={"Получаемая профессия"}
           underlineFocusStyle={{ borderColor: cyan500 }}
           style={{ marginTop: 40, outline: "none" }}
@@ -237,7 +250,7 @@ export default class StudentDialog extends BaseComponent {
             name="gild"
             fullWidth={true}
             floatingLabelText="№ цеха"
-            value={student.currentProfession.gild}
+            value={student.currentProfession?.gild}
             ref={(e) => {
               this.gild = e
             }}
@@ -249,7 +262,7 @@ export default class StudentDialog extends BaseComponent {
             name="sector"
             fullWidth={true}
             floatingLabelText="Участок"
-            value={student.currentProfession.sector}
+            value={student.currentProfession?.sector}
             ref={(e) => {
               this.sector = e
             }}
@@ -259,6 +272,7 @@ export default class StudentDialog extends BaseComponent {
         <Col xs={12} md={12}>
           <SuperSelectField
             name="controller"
+            errorText={error && !student.currentProfession?.controller ? "Обязательно к заполнению": ""}
             floatingLabel={"Наставник"}
             underlineFocusStyle={{ borderColor: cyan500 }}
             style={{ marginTop: 40, outline: "none" }}
@@ -266,7 +280,7 @@ export default class StudentDialog extends BaseComponent {
             showAutocompleteThreshold={'always'}
             hintTextAutocomplete={"Поиск"}
             hintText={""}
-            value={student.currentProfession && student.currentProfession.controller ?
+            value={student.currentProfession?.controller ?
               {
                 value: student.currentProfession.controller._id,
                 label:student.currentProfession.controller.profile.name
@@ -280,6 +294,7 @@ export default class StudentDialog extends BaseComponent {
         <Col xs={12} md={12}>
           <SuperSelectField
             name="master"
+            errorText={error && !student.currentProfession?.master ? "Обязательно к заполнению": ""}
             floatingLabel={"Мастер"}
             underlineFocusStyle={{ borderColor: cyan500 }}
             style={{ marginTop: 40, outline: "none" }}
@@ -287,7 +302,7 @@ export default class StudentDialog extends BaseComponent {
             showAutocompleteThreshold={'always'}
             hintTextAutocomplete={"Поиск"}
             hintText={""}
-            value={student.currentProfession && student.currentProfession.master ?
+            value={student.currentProfession?.master ?
               {
                 value: student.currentProfession.master._id,
                 label:student.currentProfession.master.profile.name
@@ -301,6 +316,7 @@ export default class StudentDialog extends BaseComponent {
         <Col xs={12} md={12}>
           <SuperSelectField
             name="instructor"
+            errorText={error && !student.currentProfession?.instructor ? "Обязательно к заполнению": ""}
             floatingLabel={"Инструктор"}
             underlineFocusStyle={{ borderColor: cyan500 }}
             style={{ marginTop: 40, outline: "none" }}
@@ -308,7 +324,7 @@ export default class StudentDialog extends BaseComponent {
             showAutocompleteThreshold={'always'}
             hintTextAutocomplete={"Поиск"}
             hintText={""}
-            value={student.currentProfession && student.currentProfession.instructor ?
+            value={student.currentProfession?.instructor ?
               {
                 value: student.currentProfession.instructor._id,
                 label:student.currentProfession.instructor.profile.name
@@ -321,7 +337,8 @@ export default class StudentDialog extends BaseComponent {
         </Col>
         <Divider/>
       </Row>
-    </div>);
+    </FormControl>
+    </React.Fragment>);
 
     const generalInfo = (
     <div>
@@ -351,7 +368,7 @@ export default class StudentDialog extends BaseComponent {
           <TextField
             name="year"
             fullWidth={true}
-            floatingLabelText="Год поступления"
+            floatingLabelText="Год выпуска"
             value={student.year}
             ref={(e) => {
               this.year = e
@@ -412,10 +429,12 @@ StudentDialog.defaultProps = {
 };
 
 StudentDialog.contextTypes  = {
-  editing: React.PropTypes.bool,
-  type: React.PropTypes.string,
-  professions: React.PropTypes.array,
-  controllers: React.PropTypes.array,
-  masters: React.PropTypes.array,
-  instructors: React.PropTypes.array,
+  editing: PropTypes.bool,
+  type: PropTypes.string,
+  professions: PropTypes.array,
+  controllers: PropTypes.array,
+  masters: PropTypes.array,
+  instructors: PropTypes.array,
 };
+
+export default withStyles(styles)(StudentDialog);

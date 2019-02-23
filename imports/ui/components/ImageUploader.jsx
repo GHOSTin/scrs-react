@@ -1,8 +1,9 @@
-import React, {PropTypes} from 'react';
+import React from 'react';
+import propTypes from 'prop-types';
 import ReactDom from "react-dom";
 import BaseComponent from '../components/BaseComponent.jsx';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
+import Button from '@material-ui/core/Button';
 import Slider from 'material-ui/Slider';
 import {Row} from 'react-flexbox-grid';
 
@@ -52,7 +53,7 @@ export const FileUpload = React.createClass({
 });
 
 FileUpload.PropTypes = {
-    handleFileChange: PropTypes.func.isRequired
+    handleFileChange: propTypes.func.isRequired
 };
 
 class Cropper extends BaseComponent {
@@ -299,11 +300,11 @@ class Cropper extends BaseComponent {
     }
 }
 Cropper.propTypes = {
-    image: React.PropTypes.string.isRequired,
-    width: React.PropTypes.number,
-    height: React.PropTypes.number,
-    zoom: React.PropTypes.number,
-    onRef: React.PropTypes.func.isRequired
+    image: propTypes.string.isRequired,
+    width: propTypes.number,
+    height: propTypes.number,
+    zoom: propTypes.number,
+    onRef: propTypes.func.isRequired
 };
 Cropper.defaultProps = { width: 400, height: 400, zoom: 1 };
 
@@ -314,17 +315,16 @@ export class AvatarCropper extends BaseComponent {
 
     render () {
         const actions = [
-            <FlatButton
-                label={this.props.closeButtonCopy}
-                primary={false}
+            <Button
+                color={"default"}
+                focusRipple={false}
                 onClick={this.props.onRequestHide}
-            />,
-            <FlatButton
-                label={this.props.cropButtonCopy}
-                primary={true}
-                keyboardFocused={true}
+            >{this.props.closeButtonCopy}</Button>,
+            <Button
+                color={"primary"}
+                focusRipple={false}
                 onClick={()=>{this.child.handleCrop()}}
-            />,
+            >{this.props.cropButtonCopy}</Button>,
         ];
         return (
             <Dialog
@@ -351,13 +351,13 @@ export class AvatarCropper extends BaseComponent {
 
 // The AvatarCropper Prop API
 AvatarCropper.propTypes = {
-    image: React.PropTypes.string.isRequired,
-    onCrop: React.PropTypes.func.isRequired,
-    closeButtonCopy: React.PropTypes.string,
-    cropButtonCopy: React.PropTypes.string,
-    width: React.PropTypes.number,
-    height: React.PropTypes.number,
-    onRequestHide: React.PropTypes.func.isRequired
+    image: propTypes.string.isRequired,
+    onCrop: propTypes.func.isRequired,
+    closeButtonCopy: propTypes.string,
+    cropButtonCopy: propTypes.string,
+    width: propTypes.number,
+    height: propTypes.number,
+    onRequestHide: propTypes.func.isRequired
 };
 AvatarCropper.defaultProps = { width: 400, height: 400, modalSize: "large",
     closeButtonCopy: "Закрыть", cropButtonCopy: "Обрезать и сохранить"};

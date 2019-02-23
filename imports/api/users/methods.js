@@ -83,7 +83,7 @@ export const update =  new ValidatedMethod({
         }
       }
     });
-    if (doc.password !== "") {
+    if (doc.password !== "" && Meteor.isServer) {
       Accounts.setPassword(id, doc.password)
     }
     updateRoles(id, [doc.role]);

@@ -2,7 +2,10 @@ import React from 'react';
 import i18n from 'meteor/universe:i18n';
 import BaseComponent from './BaseComponent.jsx';
 import Chip from 'material-ui/Chip';
-import {teal400, orange500} from 'material-ui/styles/colors';
+import teal from '@material-ui/core/colors/teal';
+import orange from '@material-ui/core/colors/orange';
+const teal400 = teal['400'];
+const orange500 = orange['500'];
 
 let style = {
   active: {

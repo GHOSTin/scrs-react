@@ -1,5 +1,4 @@
 {
-  "plugins": [
-    "babel-plugin-transform-decorators-legacy"
-  ]
+  "plugins": [ [ "@babel/plugin-proposal-decorators", { "legacy": true } ] , "@babel/plugin-proposal-optional-chaining"],
+  "presets": [ "react-app" ]
 }

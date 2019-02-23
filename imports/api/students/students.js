@@ -12,9 +12,8 @@ export const Students = new Mongo.Collection('students', {
     let profession2student = Profession2Student.find(
         {
           studentId: student._id,
-          isClosed: false
         },
-        { sort: { createAt: -1 }}
+        { sort: { createAt: 1 }}
     ).fetch();
     profession2student.forEach((profession)=>{
       let item = {};
@@ -57,6 +56,16 @@ Students.schema = new SimpleSchema({
   name: { type: String },
   speciality: { type: String },
   year: { type: String },
+  isArchive: { type: Boolean, defaultValue: false }
+}, {
+  clean: {
+    filter: true,
+    autoConvert: true,
+    removeEmptyStrings: true,
+    trimStrings: true,
+    getAutoValues: true,
+    removeNullsFromArrays: true,
+  },
 });
 
 Students.attachSchema(Students.schema);

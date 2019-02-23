@@ -8,7 +8,6 @@ import UsersPageContainer from '../../ui/containers/UsersPageContainer.jsx';
 import ProfessionsPageContainer from '../../ui/containers/ProfessionsPageContainer.jsx';
 import StudentsPageContainer from '../../ui/containers/StudentsPageContainer.jsx';
 import AuthPageSignIn from '../../ui/pages/AuthPageSignIn.jsx';
-import AuthPageJoin from '../../ui/pages/AuthPageJoin.jsx';
 import NotFoundPage from '../../ui/pages/NotFoundPage.jsx';
 import JournalPageContainer from "../../ui/containers/JournalPageContainer";
 import MainPageContainer from "../../ui/containers/MainPageContainer";

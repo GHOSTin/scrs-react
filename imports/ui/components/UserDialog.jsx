@@ -2,11 +2,12 @@ import React from "react";
 import {_} from 'lodash';
 import BaseComponent from '../components/BaseComponent.jsx';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
+import Button from '@material-ui/core/Button';
 import TextField from 'material-ui/TextField';
 import Divider from 'material-ui/Divider';
-import {grey50} from 'material-ui/styles/colors';
-import ImageCameraAlt from 'material-ui/svg-icons/image/camera-alt';
+import grey from '@material-ui/core/colors/grey';
+const grey50 = grey['50'];
+import ImageCameraAlt from '@material-ui/icons/CameraAlt';
 import AutoComplete from 'material-ui/AutoComplete';
 import Avatar from 'material-ui/Avatar';
 import Toggle from 'material-ui/Toggle';
@@ -182,18 +183,16 @@ export default class UserDialog extends BaseComponent {
 
   render() {
     const actions = [
-      <FlatButton
-          label="Отмена"
-          primary={false}
-          keyboardFocused={false}
-          onClick={this.props.onHide}
-      />,
-      <FlatButton
-          label="Сохранить"
-          primary={true}
-          keyboardFocused={false}
-          onClick={this.handleSave}
-      />,
+      <Button
+        color={"default"}
+        disableFocusRipple={true}
+        onClick={this.props.onHide}
+      >Отмена</Button>,
+      <Button
+        color={"primary"}
+        disableFocusRipple={true}
+        onClick={this.handleSave}
+      >Сохранить</Button>,
     ];
 
     let {user} = this.state;
