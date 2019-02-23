@@ -3,10 +3,10 @@ import i18n from 'meteor/universe:i18n';
 import {_} from 'lodash';
 import BaseComponent from '../components/BaseComponent.jsx';
 import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
+import Button from '@material-ui/core/Button';
 import TextField from 'material-ui/TextField';
 import AttachmentButton from 'material-ui/FloatingActionButton';
-import FileAttachmentIcon from 'material-ui/svg-icons/file/attachment';
+import FileAttachmentIcon from '@material-ui/icons/Attachment';
 //Data
 import Papa from 'papaparse';
 import {imports} from '../../api/students/methods';
@@ -54,18 +54,16 @@ export default class ImportStudentsDialog extends BaseComponent {
 
   render() {
     const actions = [
-      <FlatButton
-        label="Отмена"
-        primary={false}
-        keyboardFocused={false}
+      <Button
+        color={"default"}
+        disableFocusRipple={true}
         onClick={this.props.onHide}
-      />,
-      <FlatButton
-        label={i18n.__('pages.StudentsPage.importStudents')}
-        primary={true}
-        keyboardFocused={false}
+      >Отмена</Button>,
+      <Button
+        color={"primary"}
+        disableFocusRipple={true}
         onClick={this.handleSave}
-      />,
+      >{i18n.__('pages.StudentsPage.importStudents')}</Button>,
     ];
 
     return (

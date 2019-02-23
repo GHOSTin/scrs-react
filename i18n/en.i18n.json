@@ -56,7 +56,9 @@
       "yourEmail": "Your Email",
       "password": "Password",
       "signInButton": "Sign in",
-      "needAccount": "Need an account? Join Now."
+      "needAccount": "Need an account? Join Now.",
+      "error-403": "Incorrect password",
+      "accessDenied": "Access denied"
     },
     "listPage": {
       "noTasks": "No tasks here",

@@ -4,7 +4,7 @@ import BaseComponent from '../components/BaseComponent.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import Message from '../components/Message.jsx';
 import IconButton from 'material-ui/IconButton';
-import ContentRemove from 'material-ui/svg-icons/content/remove';
+import ContentRemove from '@material-ui/icons/Remove';
 import {Table, TableBody, TableRow, TableRowColumn} from 'material-ui/Table';
 import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 import TextField from 'material-ui/TextField';

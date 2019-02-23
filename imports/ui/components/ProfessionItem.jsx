@@ -5,11 +5,12 @@ import {Table, TableBody, TableRow, TableRowColumn, TableHeader, TableHeaderColu
 import {Users} from "../../api/users/users";
 import {Professions} from "../../api/professions/professions";
 import {Journal} from "../../api/journal/journal";
-import {lightBlack} from 'material-ui/styles/colors';
+import common from '@material-ui/core/colors/common';
+const lightBlack = common.lightBlack;
 
 import {_} from 'lodash';
 
-import {withData} from 'meteor/orionsoft:react-meteor-data';
+import {withData} from 'meteor/ghostin:react-meteor-data';
 import {List, ListItem} from "material-ui/List/index";
 
 
@@ -59,7 +60,7 @@ export default class ProfessionItem extends BaseComponent{
     return (
         <Card expanded={this.state.expanded} onExpandChange={this.handleExpandChange}>
           <CardHeader
-              title={<span>{this.props.item.name}&nbsp;<em>{this.state.expanded?"":`(${master.profile.name})`}</em></span>}
+              title={<span>{this.props.item.name}&nbsp;<em>{this.state.expanded?"":`(${master?master.profile.name:null})`}</em></span>}
               actAsExpander={true}
               showExpandableButton={true}
           />
@@ -67,17 +68,17 @@ export default class ProfessionItem extends BaseComponent{
             <List>
               <ListItem
                   primaryText={
-                    <div><span style={{color: lightBlack}}>Наставник:&nbsp;&nbsp;</span>{controller.profile.name}</div>
+                    <div><span style={{color: lightBlack}}>Наставник:&nbsp;&nbsp;</span>{controller?controller.profile.name:""}</div>
                   }
               />
               <ListItem
                   primaryText={
-                    <div><span style={{color: lightBlack}}>Мастер:&nbsp;&nbsp;</span>{master.profile.name}</div>
+                    <div><span style={{color: lightBlack}}>Мастер:&nbsp;&nbsp;</span>{master?master.profile.name:""}</div>
                   }
               />
               <ListItem
                   primaryText={
-                    <div><span style={{color: lightBlack}}>Инструктор:&nbsp;&nbsp;</span>{instructor.profile.name}</div>
+                    <div><span style={{color: lightBlack}}>Инструктор:&nbsp;&nbsp;</span>{instructor?instructor.profile.name:""}</div>
                   }
               />
               <ListItem

@@ -1,5 +1,5 @@
 import { Mongo } from 'meteor/mongo';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 import { Factory } from 'meteor/factory';
 import { Professions } from '../professions/professions';
 import { Users } from '../users/users';
@@ -12,9 +12,8 @@ export const Students = new Mongo.Collection('students', {
     let profession2student = Profession2Student.find(
         {
           studentId: student._id,
-          isClosed: false
         },
-        { sort: { createAt: -1 }}
+        { sort: { createAt: 1 }}
     ).fetch();
     profession2student.forEach((profession)=>{
       let item = {};
@@ -57,6 +56,27 @@ Students.schema = new SimpleSchema({
   name: { type: String },
   speciality: { type: String },
   year: { type: String },
+  isArchive: {
+    type: Boolean,
+    autoValue: function(){
+      if (this.isInsert && (this.value == null || !this.value.length)) {
+        return false;
+      }
+      if (this.isUpdate && this.isSet && this.operator === '$unset') {
+        return { $set: false };
+      }
+    },
+    optional: true
+  }
+}, {
+  clean: {
+    filter: true,
+    autoConvert: true,
+    removeEmptyStrings: true,
+    trimStrings: true,
+    getAutoValues: true,
+    removeNullsFromArrays: true,
+  },
 });
 
 Students.attachSchema(Students.schema);

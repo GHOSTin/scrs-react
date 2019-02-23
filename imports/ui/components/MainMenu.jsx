@@ -3,9 +3,12 @@ import { Link } from 'react-router';
 import BaseComponent from './BaseComponent.jsx';
 import Divider from 'material-ui/Divider';
 import MenuItem from 'material-ui/MenuItem';
-import ContentCopy from 'material-ui/svg-icons/content/content-copy';
-import PersonAdd from 'material-ui/svg-icons/social/person-add';
-import Class from 'material-ui/svg-icons/action/class';
+import ContentCopy from '@material-ui/icons/FileCopy';
+import PersonAdd from '@material-ui/icons/PersonAdd';
+import Class from '@material-ui/icons/Class';
+import grey from '@material-ui/core/colors/grey';
+
+const grey600 = grey[600];
 
 export default class MainMenu extends BaseComponent {
   constructor(props){
@@ -14,14 +17,14 @@ export default class MainMenu extends BaseComponent {
 
   render() {
     return (
-        <div>
+        <React.Fragment>
           <Link
               to={`/`}
               title="Суммарный итог"
               className="result"
               activeClassName="active"
           >
-            <MenuItem leftIcon={<Class/>}>Суммарный итог</MenuItem>
+            <MenuItem leftIcon={<Class color={"action"} />}>Суммарный итог</MenuItem>
           </Link>
           <Divider/>
           <Link
@@ -30,7 +33,7 @@ export default class MainMenu extends BaseComponent {
               className="journal"
               activeClassName="active"
           >
-              <MenuItem leftIcon={<ContentCopy/>}>Журнал</MenuItem>
+              <MenuItem leftIcon={<ContentCopy color={"action"}/>}>Журнал</MenuItem>
             </Link>
           <Link
               to={`/students/`}
@@ -38,9 +41,9 @@ export default class MainMenu extends BaseComponent {
               className="students"
               activeClassName="active"
           >
-            <MenuItem leftIcon={<PersonAdd/>}>Список студентов</MenuItem>
+            <MenuItem leftIcon={<PersonAdd color={"action"}/>}>Список студентов</MenuItem>
           </Link>
-        </div>
+        </React.Fragment>
     )
   }
 }

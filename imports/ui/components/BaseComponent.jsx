@@ -1,7 +1,7 @@
-import { Component } from 'react';
+import { PureComponent } from 'react';
 import i18n from 'meteor/universe:i18n';
 
-class BaseComponent extends Component {
+class BaseComponent extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {

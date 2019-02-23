@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Accounts } from 'meteor/accounts-base';
+import SimpleSchema from 'simpl-schema';
 
 /**
  * update a user's permissions
@@ -83,7 +83,7 @@ export const update =  new ValidatedMethod({
         }
       }
     });
-    if (doc.password !== "") {
+    if (doc.password !== "" && Meteor.isServer) {
       Accounts.setPassword(id, doc.password)
     }
     updateRoles(id, [doc.role]);

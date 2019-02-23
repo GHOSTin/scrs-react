@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { _ } from 'meteor/underscore';
 import { ValidatedMethod } from 'meteor/mdg:validated-method';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
 
 import {Journal} from "../journal/journal";
 import {Profession2Student} from "../students/students";
@@ -11,9 +11,11 @@ export const insert =  new ValidatedMethod({
   validate: new SimpleSchema({
     "start": {type: Date},
     "end": { type: Date },
-    "data": { type: [Object] },
+    "data": { type: Array },
+    "data.$": {type: Object},
     "data.$.studentId": { type: String, regEx: SimpleSchema.RegEx.Id },
-    "data.$.points": {type: [String], minCount:5, maxCount: 5}
+    "data.$.points": {type: Array, minCount:5, maxCount: 5},
+    "data.$.points.$": {type: String}
   }).validator(),
   run: function ({start, end, data}) {
     let results = [];
@@ -40,7 +42,7 @@ export const close = new ValidatedMethod({
     "profId": { type: String, regEx: SimpleSchema.RegEx.Id }
   }).validator(),
   run: function({studentId, profId}) {
-    Profession2Student.update({studentId, profId}, {$set: {isClosed: true}});
+    Profession2Student.update({studentId, profId, isClosed: false}, {$set: {isClosed: true}}, {multi: true});
     return studentId;
   }
 });

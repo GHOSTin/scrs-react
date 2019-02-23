@@ -1,6 +1,8 @@
 import { Mongo } from 'meteor/mongo';
 import { Factory } from 'meteor/factory';
-import { SimpleSchema } from 'meteor/aldeed:simple-schema';
+import SimpleSchema from 'simpl-schema';
+
+SimpleSchema.extendOptions(['index', 'unique', 'denyInsert', 'denyUpdate']);
 
 export const Journal = new Mongo.Collection('journal');
 
@@ -21,9 +23,12 @@ Journal.schema = new SimpleSchema({
     regEx: SimpleSchema.RegEx.Id,
   },
   points: {
-    type: [String],
+    type: Array,
     minCount: 5,
     maxCount: 5
+  },
+  'points.$': {
+    type: String
   },
   startDate: {
     type: Date

@@ -1,28 +1,59 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import createClass from 'create-react-class';
 import AppBar from 'material-ui/AppBar';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import IconButton from 'material-ui/IconButton';
 import IconMenu from 'material-ui/IconMenu';
-import Menu from 'material-ui/svg-icons/navigation/menu';
+import Menu from '@material-ui/icons/Menu';
 import Avatar from 'material-ui/Avatar';
 import LinearProgress from 'material-ui/LinearProgress';
-import {white, teal500} from 'material-ui/styles/colors';
+import common from '@material-ui/core/colors/common';
+import teal from '@material-ui/core/colors/teal';
+import yellow from '@material-ui/core/colors/yellow';
+const white = common.white;
+const teal500 = teal['500'];
 import withWidth, {LARGE, SMALL} from 'material-ui/utils/withWidth';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'; // v1.x
+import { MuiThemeProvider as V0MuiThemeProvider} from 'material-ui';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import {Meteor} from 'meteor/meteor';
-import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import ConnectionNotification from '../components/ConnectionNotification.jsx';
 import MainMenu from '../components/MainMenu';
 import UserMenu from '../components/UserMenu';
 
-import injectTapEventPlugin from 'react-tap-event-plugin';
-// Needed for onTouchTap
-// http://stackoverflow.com/a/34015469/988941
-//injectTapEventPlugin();
+Object.assign(React, {
+  PropTypes,
+  createClass
+});
 
-import { Link } from 'react-router';
+const theme = createMuiTheme({
+  /* theme for v1.x */
+  palette: {
+    primary: {
+      light: '#33ab9f',
+      main: '#009688',
+      dark: '#00695f',
+      contrastText: '#fff',
+    },
+    secondary: {
+      light: '#ffee33',
+      main: '#ffea00',
+      dark: '#b2a300',
+      contrastText: '#000000',
+    },
+    type: "light"
+  },
+  typography: {
+    useNextVariants: true,
+  },
+});
+const themeV0 = getMuiTheme({
+  /* theme for v0.x */
+});
 
 const CONNECTION_ISSUE_TIMEOUT = 5000;
 
@@ -165,7 +196,7 @@ class App extends React.Component {
       <IconMenu
         {...props}
         iconButtonElement={
-          <IconButton><MoreVertIcon color={white} /></IconButton>
+          <IconButton><MoreVertIcon color="action" /></IconButton>
         }
         targetOrigin={{horizontal: 'right', vertical: 'top'}}
         anchorOrigin={{horizontal: 'right', vertical: 'top'}}
@@ -175,58 +206,60 @@ class App extends React.Component {
     );
 
     return (
-      <MuiThemeProvider>
-        <div>
-          {loading ?
-              <LinearProgress mode="indeterminate" color={teal500} style={styles.loadingStyle}/> : null}
-          <AppBar
-              title={"Дневник практик ББМ"}
-              style={styles.appBar}
-              iconElementLeft={
-                <IconButton
-                    style={styles.menuButton}
-                    onClick={this.state.isAuthenticated ? this.handleChangeRequestNavDrawer.bind(this) : null}
-                >
-                  <Menu color={white}/>
-                </IconButton>
-              }
-              iconElementRight={
-                this.state.isAuthenticated ? <Logged /> : null
-              }
-          >
-            {showConnectionIssue && !connected
-                ? <ConnectionNotification/>
-                : null}
-          </AppBar>
-          {this.state.isAuthenticated ?
-              <Drawer
-                  docked={this.state.navDrawerDocker}
-                  open={this.state.navDrawerOpen}
-                  containerStyle={styles.navStyle}
-                  onRequestChange={this.onRequestChange.bind(this)}
-                  width={paddingLeftDrawerOpen}
-              >
-                {!loading ?
-                    <div style={styles.avatar.div}>
-                      <Avatar src={user.avatar}
-                              size={50}
-                              style={styles.avatar.icon}/>
-                      <span style={styles.avatar.span}>{user.profile.name}</span>
-                    </div> : null
+      <MuiThemeProvider theme={theme}>
+        <V0MuiThemeProvider muiTheme={themeV0}>
+          <div>
+            {loading ?
+                <LinearProgress mode="indeterminate" color={teal500} style={styles.loadingStyle}/> : null}
+            <AppBar
+                title={"Дневник практик ББМ"}
+                style={styles.appBar}
+                iconElementLeft={
+                  <IconButton
+                      style={styles.menuButton}
+                      onClick={this.state.isAuthenticated ? this.handleChangeRequestNavDrawer.bind(this) : null}
+                  >
+                    <Menu/>
+                  </IconButton>
                 }
-                <MainMenu/>
-                {Roles.userIsInRole(user, 'admin')? <UserMenu/>: null}
-              </Drawer> : null}
-          <div style={styles.container}>
-            <ReactCSSTransitionGroup
-                transitionName="fade"
-                transitionEnterTimeout={200}
-                transitionLeaveTimeout={200}
+                iconElementRight={
+                  this.state.isAuthenticated ? <Logged /> : null
+                }
             >
-              {!loading ? clonedChildren : null}
-            </ReactCSSTransitionGroup>
+              {showConnectionIssue && !connected
+                  ? <ConnectionNotification/>
+                  : null}
+            </AppBar>
+            {this.state.isAuthenticated ?
+                <Drawer
+                    docked={this.state.navDrawerDocker}
+                    open={this.state.navDrawerOpen}
+                    containerStyle={styles.navStyle}
+                    onRequestChange={this.onRequestChange.bind(this)}
+                    width={paddingLeftDrawerOpen}
+                >
+                  {!loading ?
+                      <div style={styles.avatar.div}>
+                        <Avatar src={user.avatar}
+                                size={50}
+                                style={styles.avatar.icon}/>
+                        <span style={styles.avatar.span}>{user.profile.name}</span>
+                      </div> : null
+                  }
+                  <MainMenu/>
+                  {Roles.userIsInRole(user, 'admin')? <UserMenu/>: null}
+                </Drawer> : null}
+            <div style={styles.container}>
+              <ReactCSSTransitionGroup
+                  transitionName="fade"
+                  transitionEnterTimeout={200}
+                  transitionLeaveTimeout={200}
+              >
+                {!loading ? clonedChildren : null}
+              </ReactCSSTransitionGroup>
+            </div>
           </div>
-        </div>
+        </V0MuiThemeProvider>
       </MuiThemeProvider>
     );
   }

@@ -5,13 +5,16 @@ import NotFoundPage from '../pages/NotFoundPage.jsx';
 import Message from '../components/Message.jsx';
 import UserDialog from '../components/UserDialog';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
-import ContentAdd from 'material-ui/svg-icons/content/add';
-import {yellow400, fullBlack} from 'material-ui/styles/colors';
+import ContentAdd from '@material-ui/icons/Add';
+import yellow from '@material-ui/core/colors/yellow';
+import common from '@material-ui/core/colors/common';
+const yellow400 = yellow['400'];
+const fullBlack = common.fullBlack;
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
 import IconButton from 'material-ui/IconButton';
 import Avatar from 'material-ui/Avatar';
-import ContentCreate from 'material-ui/svg-icons/content/create';
-import RemoveCircle from 'material-ui/svg-icons/content/remove-circle';
+import ContentCreate from '@material-ui/icons/Create';
+import RemoveCircle from '@material-ui/icons/RemoveCircle';
 import Status from '../components/Status';
 import {RolesCollection} from '../../api/roles/roles';
 import {_} from 'lodash';
@@ -132,7 +135,7 @@ export default class UsersPage extends BaseComponent {
             backgroundColor={yellow400}
             onClick={() => this.onEditingChange({}, false)}
             style={styles.floatingActionButton}
-            iconStyle={{fill: fullBlack}}
+            iconStyle={{fill: common.black}}
           >
             <ContentAdd/>
           </FloatingActionButton>

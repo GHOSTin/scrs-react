@@ -7,14 +7,16 @@ import {Journal} from "../../api/journal/journal";
 import BaseComponent from '../components/BaseComponent.jsx';
 import NotFoundPage from '../pages/NotFoundPage.jsx';
 import Message from '../components/Message.jsx';
-import FlatButton from 'material-ui/FlatButton';
-import ContentRemove from 'material-ui/svg-icons/content/block';
+import Button from '@material-ui/core/Button';
+import ContentRemove from '@material-ui/icons/Block';
 import {Table, TableHeader, TableBody, TableRow, TableHeaderColumn, TableRowColumn} from 'material-ui/Table';
 import Dialog from "material-ui/Dialog";
-import RaisedButton from 'material-ui/RaisedButton';
-import {teal500, teal400, teal300, fullWhite} from 'material-ui/styles/colors';
+import { withStyles } from '@material-ui/core/styles';
+import teal from '@material-ui/core/colors/teal';
+const teal500 = teal['500'];
+const teal400 = teal['400'];
+const teal300 = teal['300'];
 import Snackbar from 'material-ui/Snackbar';
-import {Row, Col} from 'react-flexbox-grid';
 import InfiniteCalendar, {
   Calendar,
   withRange,
@@ -25,42 +27,70 @@ import NumberField from '../components/NumberField.jsx';
 import serialize from 'form-serialize';
 
 import {insert, close} from "../../api/journal/methods";
+import Stepper from "@material-ui/core/Stepper";
+import Step from "@material-ui/core/Step";
+import StepLabel from "@material-ui/core/StepLabel";
+import StepContent from "@material-ui/core/StepContent";
+import {Typography} from "@material-ui/core";
+import Paper from "@material-ui/core/Paper";
+import Tooltip from "@material-ui/core/Tooltip";
+import TableSortLabel from "@material-ui/core/TableSortLabel";
 
-const theme={
+const themeCalendar = {
   selectionColor: teal300,
-      textColor: {
-  default: '#333',
-        active: '#FFF'
+  textColor: {
+    default: '#333',
+    active: '#FFF'
   },
   weekdayColor: teal300,
-      headerColor: teal400,
-      floatingNav: {
+  headerColor: teal400,
+  floatingNav: {
     background: teal500,
-        color: '#FFF',
-        chevron: '#FFA726'
+    color: '#FFF',
+    chevron: '#FFA726'
   },
   accentColor: teal400
 };
 
-const styles = {
+const styles = theme => ({
+  root: {
+    width: '90%',
+  },
+  button: {
+    marginTop: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+  },
+  actionsContainer: {
+    marginBottom: theme.spacing.unit * 2,
+  },
+  resetContainer: {
+    padding: theme.spacing.unit * 3,
+  },
   tableStyles: {
-    width: "800px",
+    width: "800px!important",
   },
   tableWrapperStyle: {
-    width: "800px",
+    width: "800px!important",
   },
   tableHeader: {
-    whiteSpace: "normal"
+    whiteSpace: "normal!important"
   },
   closeButton: {
     minWidth: "60px"
   },
   dialogStyle: {
     width: 300
-  }
-};
+  },
+  lightTooltip: {
+    backgroundColor: theme.palette.common.white,
+    color: 'rgba(0, 0, 0, 0.87)',
+    boxShadow: theme.shadows[1],
+    fontSize: 11,
+  },
+});
 
 const Tooltip1 = (
+  <React.Fragment>
     <ul>
       <li>нарушений / замечаний не было	- 5</li>
       <li>1 нарушение / замечание	- 4</li>
@@ -69,9 +99,11 @@ const Tooltip1 = (
       <li>4 нарушения / замечания	- 1</li>
       <li>5 и более  нарушений / замечаний - 0</li>
     </ul>
+  </React.Fragment>
 );
 
 const Tooltip2 = (
+  <React.Fragment>
     <table className="tooltipTable">
       <tbody>
       <tr>
@@ -105,10 +137,11 @@ const Tooltip2 = (
       </tr>
       </tbody>
     </table>
+  </React.Fragment>
 );
 
 const Tooltip3 = (
-    <div>
+  <React.Fragment>
       Проявленные компетенции (оцените по 5 –бальной шкале):
       <ul>
         <li>ориентация на результат</li>
@@ -119,10 +152,11 @@ const Tooltip3 = (
         <li>коммуникация</li>
       </ul>
       <strong>Средний балл оценки Soft-Skills</strong>
-    </div>
+  </React.Fragment>
 );
 
-export default class JournalPage extends BaseComponent {
+
+class JournalPage extends BaseComponent {
 
   state = {
     message: '',
@@ -130,7 +164,8 @@ export default class JournalPage extends BaseComponent {
     openDialog: false,
     selected: null,
     students: [],
-    selectedStudent: null
+    selectedStudent: null,
+    activeStep: 0
   };
 
   constructor(props) {
@@ -145,8 +180,13 @@ export default class JournalPage extends BaseComponent {
     })
   }
 
-  onClickAddedButton = (e) => {
-    e.preventDefault();
+  handleReset = () => {
+    this.setState({
+      activeStep: 0,
+    });
+  };
+
+  handleNextStepOne = () => {
     if(this.state.selected === null){
       this.setState({
         open: true,
@@ -154,14 +194,21 @@ export default class JournalPage extends BaseComponent {
       });
       return false;
     }
-    let error = false, data = [];
+    this.setState(state => ({
+      activeStep: state.activeStep + 1,
+    }));
+  };
+
+  handleNextStepTwo = () => {
+    let error = false;
+    const data = [];
     let obj = serialize(this.form, { hash: true });
     for(let key in obj.points){
       let points = obj.points[key];
       if(points.length < 5) {
         this.setState({
           open: true,
-          message: i18n.__('pages.JournalPage.pointsCountError')
+          message: 'Введены не все оценки'
         });
         error = true;
         break;
@@ -184,7 +231,7 @@ export default class JournalPage extends BaseComponent {
         let index = _.findIndex(this.state.students, (item) => (item._id === student));
         this.setState({
           students: update(this.state.students, {[index]: {currentProfession: {journal: {$push: [{
-                      ...journal
+                    ...journal
                   }]}}}})
         })
       }
@@ -194,11 +241,18 @@ export default class JournalPage extends BaseComponent {
         e.setState({value: ""});
       }
     });
-    this.setState({
+    this.setState(state => ({
+      activeStep: state.activeStep + 1,
       selected: null,
       message: "Запись прошла успешно",
       open: true
-    });
+    }));
+  };
+
+  handleBack = () => {
+    this.setState(state => ({
+      activeStep: state.activeStep - 1,
+    }));
   };
 
   handleClose = () => {
@@ -258,17 +312,16 @@ export default class JournalPage extends BaseComponent {
   };
 
   render(){
-    const { loading, listExists } = this.props;
-    const { students } = this.state;
-    console.log(students);
+    const { loading, listExists, classes } = this.props;
+    const { students, activeStep } = this.state;
     let filteredStudents = students.filter(
         student => {
           let count = this.state.selected ?
-              _.filter(student.currentProfession.journal,  journal=>{
+              _.filter(student.currentProfession?.journal,  journal=>{
                 return moment(journal.startDate).isSame(moment(this.state.selected.start))
               }) :
               [];
-          return count.length === 0 || student.currentProfession.journal.length >= 12;
+          return count.length === 0 || student.currentProfession?.journal?.length >= 12;
         }
     );
     if (!listExists || !Meteor.userId()) {
@@ -276,15 +329,13 @@ export default class JournalPage extends BaseComponent {
     }
 
     const actions = [
-      <FlatButton
-          label="Отмена"
+      <Button
           onClick={this.handleClose}
-      />,
-      <FlatButton
-          label="Окончить"
-          primary={true}
+      >Отмена</Button>,
+      <Button
+          color={"primary"}
           onClick={this.onClickRemove}
-      />,
+      >Окончить</Button>,
     ];
 
     const TableHeaderData = [
@@ -310,14 +361,15 @@ export default class JournalPage extends BaseComponent {
       }
     ];
 
-    let JournalCalendar = <div>
-      <Row>
-        <Col xs={12} md={6}>
+    let JournalCalendar = <Stepper activeStep={activeStep} orientation="vertical">
+      <Step key={0}>
+        <StepLabel>Шаг 1. Выберите неделю</StepLabel>
+        <StepContent>
           <InfiniteCalendar
               Component={withRange(Calendar)}
               width={400}
               height={400}
-              theme={theme}
+              theme={themeCalendar}
               locale={{
                 locale: require('date-fns/locale/ru'),
                 headerFormat: 'MMM Do',
@@ -331,117 +383,141 @@ export default class JournalPage extends BaseComponent {
               selected={this.state.selected}
               onSelect={this.onSelectDate}
           />
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={12}>
-          <RaisedButton
-              label={i18n.__('pages.JournalPage.addWeekPlan')}
-              backgroundColor={teal500}
-              labelColor={fullWhite}
-              onClick={this.onClickAddedButton}
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={12}>
+          <div className={classes.actionsContainer}>
+            <div>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.handleNextStepOne}
+                className={classes.button}
+              >
+                Далее
+              </Button>
+            </div>
+          </div>
+        </StepContent>
+      </Step>
+      <Step key={1}>
+        <StepLabel>
+          {`Шаг 2. Выставите оценки вашим практикантам за неделю с ${moment(this.state.selected?.start).format('DD.MM.YY')}
+          по ${moment(this.state.selected?.end).format('DD.MM.YY')}`}
+        </StepLabel>
+        <StepContent>
           <form
             ref={form => this.form = form}
           >
-          <Table
-            style={styles.tableStyles}
-            selectable={false}
-          >
+            {(filteredStudents.length > 0)?
+            <Table
+              className={classes.tableStyles}
+              selectable={false}
+            >
             <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
               <TableRow key={"header"}>
                 <TableHeaderColumn style={{width: "300px"}}>
                   ФИО
                 </TableHeaderColumn>
-                <TableHeaderColumn style={styles.tableHeader} />
+                <TableHeaderColumn className={classes.tableHeader} />
                 {TableHeaderData.map((row, index) => (
                     <TableHeaderColumn
-                      tooltip={row.tooltip}
                       key={index}
-                      style={styles.tableHeader}
+                      className={classes.tableHeader}
                     >
-                      {row.name}
+                      <Tooltip title={row.tooltip} className={{tooltip: classes.lightTooltip}}><TableSortLabel>{row.name}</TableSortLabel></Tooltip>
                     </TableHeaderColumn>
                 ))}
               </TableRow>
             </TableHeader>
-            <TableBody displayRowCheckbox={false} style={styles.tableWrapperStyle}>
+            <TableBody displayRowCheckbox={false} className={classes.tableWrapperStyle}>
               {filteredStudents.map((student) => (
                   <TableRow key={student._id}>
                     <TableRowColumn style={{width: "300px"}}>
                       {student.name}
                     </TableRowColumn>
                     <TableRowColumn>
-                      <RaisedButton
-                          backgroundColor={teal400}
-                          icon={<ContentRemove />}
-                          style={styles.closeButton}
-                          labelColor={fullWhite}
+                      <Button
+                          variant="contained"
+                          color="primary"
+                          className={classes.closeButton}
                           onClick={() => this.handleRequestCloseProfession(student)}
-                      />
+                      ><ContentRemove /></Button>
                     </TableRowColumn>
-                    <TableRowColumn style={styles.tableHeader}>
+                    <TableRowColumn className={classes.tableHeader}>
                       <NumberField
                         name={`points[${student._id}][]`}
                         type={"number"}
                         min={0}
                         max={5}
                         ref={input => this.points[`${student._id}_point1`] = input}
-                        disabled={ student.currentProfession.journal.length >= 12}
+                        disabled={ student.currentProfession?.journal?.length >= 12}
                       />
                     </TableRowColumn>
-                    <TableRowColumn style={styles.tableHeader}>
+                    <TableRowColumn className={classes.tableHeader}>
                       <NumberField
                           name={`points[${student._id}][]`}
                           type={"number"}
                           min={0}
                           max={5}
                           ref={input => this.points[`${student._id}_point2`] = input}
-                          disabled={student.currentProfession.journal.length >= 12}
+                          disabled={student.currentProfession?.journal?.length >= 12}
                       />
                     </TableRowColumn>
-                    <TableRowColumn style={styles.tableHeader}>
+                    <TableRowColumn className={classes.tableHeader}>
                       <NumberField
                           name={`points[${student._id}][]`}
                           type={"number"}
                           min={0}
                           max={5}
                           ref={input => this.points[`${student._id}_point3`] = input}
-                          disabled={student.currentProfession.journal.length >= 12}
+                          disabled={student.currentProfession?.journal?.length >= 12}
                       />
                     </TableRowColumn>
-                    <TableRowColumn style={styles.tableHeader}>
+                    <TableRowColumn className={classes.tableHeader}>
                       <NumberField
                           name={`points[${student._id}][]`}
                           type={"number"}
                           min={0}
                           max={5}
                           ref={input => this.points[`${student._id}_point4`] = input}
-                          disabled={student.currentProfession.journal.length >= 12}
+                          disabled={student.currentProfession?.journal?.length >= 12}
                       />
                     </TableRowColumn>
-                    <TableRowColumn style={styles.tableHeader}>
+                    <TableRowColumn className={classes.tableHeader}>
                       <NumberField
                           name={`points[${student._id}][]`}
                           type={"number"}
                           min={0}
                           max={5}
                           ref={input => this.points[`${student._id}_point5`] = input}
-                          disabled={student.currentProfession.journal.length >= 12}
+                          disabled={student.currentProfession?.journal?.length >= 12}
                       />
                     </TableRowColumn>
                   </TableRow>
-              ))}
+                ))}
             </TableBody>
-          </Table>
+          </Table>: <Typography>Вы уже ввели оценки за эту неделю</Typography>}
           </form>
-        </Col>
-      </Row>
-    </div>;
+          <div className={classes.actionsContainer}>
+            <div>
+              <Button
+                disabled={activeStep === 0}
+                onClick={this.handleBack}
+                className={classes.button}
+              >
+                Вернуться назад
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={this.handleNextStepTwo}
+                className={classes.button}
+              >
+                {i18n.__('pages.JournalPage.addWeekPlan')}
+              </Button>
+            </div>
+          </div>
+        </StepContent>
+      </Step>
+    </Stepper>;
 
     return (
         <div className="page lists-show">
@@ -449,6 +525,14 @@ export default class JournalPage extends BaseComponent {
           {loading
             ? <Message title={i18n.__('pages.JournalPage.loading')} />
             : JournalCalendar}
+            {activeStep === 2 && (
+              <Paper square elevation={0} className={classes.resetContainer}>
+                <Typography variant="subtitle1" gutterBottom>Оценки сохранены</Typography>
+                <Button onClick={this.handleReset} className={classes.button}>
+                  Выбрать другую неделю
+                </Button>
+              </Paper>
+            )}
           <Snackbar
               open={this.state.open}
               message={this.state.message}
@@ -468,3 +552,5 @@ export default class JournalPage extends BaseComponent {
   }
 
 }
+
+export default withStyles(styles)(JournalPage);
