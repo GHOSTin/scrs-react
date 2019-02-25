@@ -334,7 +334,7 @@ class EnchantedTable extends BaseComponent {
       {
         name: 'weeks',
         title: 'Разница недель',
-        getCellValue: row => row.currentProfession?._id ? Moment(row.currentProfession?.journal?.slice(-1)[0].endDate).diff(Moment().day(0), 'weeks') : null
+        getCellValue: row => row.currentProfession?.journal?.length ? Moment().day(0).diff(Moment(row.currentProfession?.journal?.slice(-1)[0]?.endDate), 'weeks') : null
       },
     ],
     grouping: [],
