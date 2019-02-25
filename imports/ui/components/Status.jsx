@@ -4,32 +4,35 @@ import BaseComponent from './BaseComponent.jsx';
 import Chip from 'material-ui/Chip';
 import teal from '@material-ui/core/colors/teal';
 import orange from '@material-ui/core/colors/orange';
+import {withStyles} from "@material-ui/styles";
 const teal400 = teal['400'];
 const orange500 = orange['500'];
 
-let style = {
+const styles = theme => ({
   active: {
-    backgroundColor: teal400,
+    backgroundColor: `${teal400}!important`,
   },
   inactive: {
-    backgroundColor: orange500,
+    backgroundColor: `${orange500}!important`,
   },
   label: {
     lineHeight: '25px'
   }
-};
+});
 class Status extends BaseComponent {
   constructor(props) {
     super(props);
   }
 
   render() {
-    let {status} = this.props;
+    const {status, classes} = this.props;
     return (
         <Chip
-            style={style[status]}
+            className={classes[status]}
             labelColor={'white'}
-            labelStyle={style.label}
+            labelStyle={{
+              lineHeight: '25px'
+            }}
         >
           {i18n.__(`components.Status.${status}`)}
         </Chip>
@@ -37,4 +40,4 @@ class Status extends BaseComponent {
   }
 }
 
-export default Status;
+export default withStyles(styles)(Status);

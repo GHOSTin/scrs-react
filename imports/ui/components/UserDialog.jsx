@@ -97,14 +97,15 @@ export default class UserDialog extends BaseComponent {
 
   changeHandlerVal(key, attr, value) {
     let state = {};
+    state.lastChange = new Date().now; // ms
     if (key !== null) {
       state[key] = this.state[key] || {};
       state[key][attr] = value;
+      this.setState({state});
     } else {
       state[attr] = value;
+      this.setState(state);
     }
-    state.lastChange = new Date().now; // ms
-    this.setState(state);
   };
 
   changeHandler = function (key, attr, event) {

@@ -9,19 +9,38 @@ import ContentAdd from '@material-ui/icons/Add';
 import yellow from '@material-ui/core/colors/yellow';
 import common from '@material-ui/core/colors/common';
 const yellow400 = yellow['400'];
-const fullBlack = common.fullBlack;
-import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
-import IconButton from 'material-ui/IconButton';
-import Avatar from 'material-ui/Avatar';
+import IconButton from '@material-ui/core/IconButton';
+import Avatar from '@material-ui/core/Avatar';
 import ContentCreate from '@material-ui/icons/Create';
-import RemoveCircle from '@material-ui/icons/RemoveCircle';
 import Status from '../components/Status';
 import {RolesCollection} from '../../api/roles/roles';
 import {_} from 'lodash';
 
 import {remove} from '../../api/users/methods';
+import {withStyles} from "@material-ui/styles";
+import {
+  Grid, PagingPanel, SearchPanel,
+  Table as TableGrid,
+  TableHeaderRow, Toolbar
+} from "@devexpress/dx-react-grid-material-ui";
+import {
+  DataTypeProvider,
+  IntegratedFiltering, IntegratedPaging,
+  IntegratedSorting,
+  PagingState, SearchState,
+  SortingState
+} from "@devexpress/dx-react-grid";
+import Paper from "@material-ui/core/Paper";
+import Tooltip from "@material-ui/core/Tooltip";
+import {Getter, Plugin, Template} from "@devexpress/dx-react-core";
+import * as PropTypes from "prop-types";
 
-const styles = {
+
+const styles = theme => ({
+  root: {
+    display: 'flex',
+    flexWrap: 'wrap'
+  },
   floatingActionButton: {
     margin: 0,
     top: 'auto',
@@ -30,12 +49,237 @@ const styles = {
     left: 'auto',
     position: 'fixed',
   }
+});
+
+const pluginDependencies = [
+  {name: 'Table'},
+];
+
+const ACTIONS_COLUMN_TYPE = 'actionsColumnType';
+const TABLE_HEADING_TYPE = 'heading';
+
+function tableColumnsWithActions(tableColumns, width) {
+  return [...tableColumns, {key: ACTIONS_COLUMN_TYPE, type: ACTIONS_COLUMN_TYPE, width: width}];
+}
+
+function isHeadingActionsTableCell(tableRow, tableColumn) {
+  return tableRow.type === TableHeaderRow.ROW_TYPE && tableColumn.type === ACTIONS_COLUMN_TYPE;
+}
+
+function isActionsTableCell(tableRow, tableColumn) {
+  return tableRow.type !== TableHeaderRow.ROW_TYPE && tableColumn.type === ACTIONS_COLUMN_TYPE;
+
+}
+
+export class ActionsColumn extends React.PureComponent {
+  render() {
+    const {
+      actions,
+      width,
+    } = this.props;
+    const tableColumnsComputed = ({tableColumns}) => tableColumnsWithActions(tableColumns, width);
+
+    return (
+      <Plugin
+        name="ActionsColumn"
+        dependencies={pluginDependencies}
+      >
+        <Getter name="tableColumns" computed={tableColumnsComputed}/>
+
+        <Template
+          name="tableCell"
+          predicate={({tableRow, tableColumn}) =>
+            isHeadingActionsTableCell(tableRow, tableColumn)}
+        >
+          <TableGrid.Cell/>
+        </Template>
+        <Template
+          name="tableCell"
+          predicate={({tableRow, tableColumn}) => isActionsTableCell(tableRow, tableColumn)}
+        >
+          {params => (
+            <TableGrid.Cell {...params} row={params.tableRow.row}>
+              {actions.map(action => {
+                const row = params.tableRow.row;
+                return (
+                  action.tooltip ? (
+                    <Tooltip title={action.tooltipTitle} key={row.id}>
+                      <IconButton onClick={() => action.action(row)}>
+                        {action.icon}
+                      </IconButton>
+                    </Tooltip>
+                  ) :(
+                    <IconButton onClick={() => action.action(row)} key={row.id}>
+                      {action.icon}
+                    </IconButton>
+                  )
+                )
+              })}
+            </TableGrid.Cell>
+          )}
+        </Template>
+      </Plugin>
+    );
+  }
+}
+ActionsColumn.propTypes = {
+  actions: PropTypes.arrayOf(PropTypes.shape({
+    icon: PropTypes.node,
+    action: PropTypes.func.isRequired
+  })).isRequired,
+  width: PropTypes.number
+};
+ActionsColumn.defaultProps = {
+  width: 100,
 };
 
-export default class UsersPage extends BaseComponent {
+
+const pagingPanelMessages = {
+  showAll: 'Все',
+  rowsPerPage: 'Строк на странице:',
+  info: '{from}-{to} из {count}',
+};
+
+const tableHeaderMessages = {
+  sortingHint: 'Сортировать'
+};
+
+const searchPanelMessages = {
+  searchPlaceholder: 'Поиск...'
+};
+
+const filterRowMessages = {
+  filterPlaceholder: 'Фильтровать по полю',
+  contains: 'Содержит',
+  notContains: 'Не содержит',
+  startsWith: 'Начинается с',
+  endsWith: 'Заканчиается на',
+  equal: 'Равно',
+  notEqual: 'Не равно',
+  greaterThan: 'Больше',
+  greaterThanOrEqual: 'Больше или равно',
+  lessThan: 'Меньше',
+  lessThanOrEqual: 'Меньше или равно',
+  empty: 'Пусто'
+};
+
+const avatarFormatter = withStyles(styles)(
+  ({ value, classes }) =>
+    <Avatar src={value} />
+);
+
+const statusFormatter = withStyles(styles)(
+  ({ value, classes }) =>
+    <Status status={value} />
+);
+
+class EnchantedTable extends BaseComponent {
+
+  state = {
+    columns: [
+      { name: 'avatar', title: ' ', getCellValue: row => row.avatar },
+      { name: 'name', title: 'ФИО', getCellValue: row => row.profile?.name },
+      { name: 'username', title: 'Логин' },
+      { name: 'roles', title: 'Роли доступа', getCellValue: row => this.getRole(row.roles[0]) },
+      {
+        name: 'status',
+        title: 'Статус',
+        getCellValue: row => row.profile?.status
+      },
+    ],
+    searchValue: '',
+    pageSizes: [25, 50, 100],
+    tableColumnExtensions: [
+      { columnName: 'avatar', width: 68 },
+      { columnName: 'status', width: 150 },
+      { columnName: 'controls', width: 100 },
+    ],
+  };
+
+  changeSorting = sorting => this.setState({ sorting });
+
+  changeSearchValue = value => this.setState({ searchValue: value });
+
+  getRole = (role) => {return _.chain(RolesCollection).find({value: role}).get('text', '').value()};
+
+
+  render() {
+    const {
+      columns,
+      pageSizes,
+      searchValue,
+      tableColumnExtensions,
+    } = this.state;
+    const {rows, classes, handleChange} = this.props;
+
+    const actions = [
+      {
+        icon: <ContentCreate/>,
+        action: row => handleChange(row, true),
+        tooltip: true,
+        tooltipTitle: 'Изменить'
+      }
+    ];
+
+    return (
+        <div className={classes.tableWrapper}>
+          <Grid
+            rows={rows.map((e, k) => {return {id: k, ...e}})}
+            columns={columns}
+          >
+            <DataTypeProvider
+              for={['avatar']}
+              formatterComponent={avatarFormatter}
+            />
+            <DataTypeProvider
+              for={['status']}
+              formatterComponent={statusFormatter}
+            />
+            <SortingState
+              defaultSorting={[
+                { columnName: 'name', direction: 'asc' }
+              ]}
+              onSortingChange={this.changeSorting}
+            />
+            <PagingState
+              defaultCurrentPage={0}
+              pageSize={25}
+            />
+            <IntegratedSorting />
+            <IntegratedPaging />
+            <SearchState
+              value={searchValue}
+              onValueChange={this.changeSearchValue}
+            />
+            <IntegratedFiltering />
+            <TableGrid
+              columnExtensions={tableColumnExtensions}
+            />
+            <TableHeaderRow
+              showSortingControls
+              messages={tableHeaderMessages}
+            />
+            <ActionsColumn actions={actions}/>
+            <Toolbar />
+            <SearchPanel
+              messages={searchPanelMessages}
+            />
+            <PagingPanel
+              pageSizes={pageSizes}
+              messages={pagingPanelMessages}
+            />
+          </Grid>
+        </div>
+    )
+  }
+
+}
+
+EnchantedTable = withStyles(styles)(EnchantedTable);
+
+class UsersPage extends BaseComponent {
   constructor(props) {
     super(props);
-    this.getRole = (role) => {return _.chain(RolesCollection).find({value: role}).get('text', '').value()};
     this.state = {...this.state,  editing: undefined, open: false };
   }
 
@@ -43,13 +287,13 @@ export default class UsersPage extends BaseComponent {
     return {editing: this.state.editing};
   }
 
-  onEditingChange(user, editing) {
+  handleChange = (user, editing) => {
     this.setState({
       user: editing ? user : undefined,
       open: true,
       editing: editing
     });
-  }
+  };
 
   static onClickRemove(user){
     if(confirm(i18n.__('pages.UsersPage.confirmDelete'))){
@@ -64,7 +308,7 @@ export default class UsersPage extends BaseComponent {
   };
 
   render() {
-    const { loading, listExists, users } = this.props;
+    const { loading, listExists, users, classes } = this.props;
 
     if (!listExists || !Roles.userIsInRole(Meteor.user(), 'admin')) {
       return <NotFoundPage />;
@@ -80,47 +324,9 @@ export default class UsersPage extends BaseComponent {
       );
     } else {
       Users = (
-        <Table fixedHeader>
-          <TableHeader
-            displaySelectAll={false}
-          >
-            <TableRow>
-              <TableHeaderColumn style={{width: 68}}/>
-              <TableHeaderColumn>ФИО</TableHeaderColumn>
-              <TableHeaderColumn>Login</TableHeaderColumn>
-              <TableHeaderColumn>Роль</TableHeaderColumn>
-              <TableHeaderColumn style={{width: 150}}/>
-              <TableHeaderColumn style={{width: 130}}/>
-            </TableRow>
-          </TableHeader>
-          <TableBody showRowHover={true} displayRowCheckbox={false}>
-            {users.map((user,index) => (
-              <TableRow key={user._id}>
-                <TableRowColumn style={{width: 68}}><Avatar src={user.avatar}/></TableRowColumn>
-                <TableRowColumn>{user.profile?user.profile.name:null}</TableRowColumn>
-                <TableRowColumn>{user.username}</TableRowColumn>
-                <TableRowColumn>{this.getRole(user.roles[0])}</TableRowColumn>
-                <TableRowColumn style={{width: 150}}><Status status={user.profile?user.profile.status:null} /></TableRowColumn>
-                <TableRowColumn style={{overflow: 'visible', width: 130}}>
-                  <IconButton
-                      tooltip="Изменить"
-                      tooltipPosition='top-center'
-                      onClick={() => this.onEditingChange(user, true)}
-                  >
-                    <ContentCreate/>
-                  </IconButton>
-                  <IconButton
-                      tooltip="Удалить"
-                      tooltipPosition='top-center'
-                      onClick={() => UsersPage.onClickRemove(user)}
-                  >
-                    <RemoveCircle/>
-                  </IconButton>
-                </TableRowColumn>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <Paper className={classes.root}>
+          <EnchantedTable rows={users} handleChange={this.handleChange}/>
+        </Paper>
       );
     }
 
@@ -133,8 +339,8 @@ export default class UsersPage extends BaseComponent {
           </div>
           <FloatingActionButton
             backgroundColor={yellow400}
-            onClick={() => this.onEditingChange({}, false)}
-            style={styles.floatingActionButton}
+            onClick={() => this.handleChange({}, false)}
+            className={classes.floatingActionButton}
             iconStyle={{fill: common.black}}
           >
             <ContentAdd/>
@@ -159,3 +365,5 @@ UsersPage.propTypes = {
 UsersPage.childContextTypes = {
   editing: React.PropTypes.bool
 };
+
+export default withStyles(styles)(UsersPage);
