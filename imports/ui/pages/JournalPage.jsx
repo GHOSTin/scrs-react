@@ -511,7 +511,7 @@ class JournalPage extends BaseComponent {
                 onClick={this.handleNextStepTwo}
                 className={classes.button}
               >
-                {i18n.__('pages.JournalPage.addWeekPlan')}
+                Сохранить оценки
               </Button>
             </div>
           </div>
