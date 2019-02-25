@@ -38,6 +38,7 @@ import Icon from "@material-ui/core/Icon";
 import {Getter} from "@devexpress/dx-react-core";
 import {_} from "lodash";
 import Workbook from 'react-xlsx-workbook'
+import Moment from "moment";
 
 const toolbarStyles = theme => ({
   root: {
@@ -281,6 +282,16 @@ const getAvgPoints = (journal) => {
     .value();
 };
 
+const getColor = (amount: number) : string => {
+  if (amount > 3) {
+    return '#F44336';
+  }
+  if (amount > 2) {
+    return '#ffc107';
+  }
+  return '#009688';
+};
+
 const FilterIcon = ({ type, ...restProps }) => {
   if (type === 'empty') return <SpaceBar {...restProps} />;
   return <TableFilterRow.Icon type={type} {...restProps} />;
@@ -296,6 +307,11 @@ const GridDetailContainerBase = ({row, classes}) => {
 
 const GridDetailContainer = withStyles(styles)(GridDetailContainerBase);
 
+const weeksFormatter = withStyles(styles)(
+  ({value, classes}) =>
+    <b className={classes.weeks} style={{ color: getColor(value) }}>{value}</b>
+);
+
 class EnchantedTable extends BaseComponent {
 
   state = {
@@ -306,9 +322,19 @@ class EnchantedTable extends BaseComponent {
       { name: 'speciality', title: 'Специальность' },
       { name: 'year', title: 'Год выпуска' },
       {
+        name: 'gild',
+        title: 'Цех',
+        getCellValue: row => row.currentProfession?.gild
+      },
+      {
         name: 'currentProfession',
         title: 'Текущая получаемая профессия',
         getCellValue: row => row.currentProfession?.name
+      },
+      {
+        name: 'weeks',
+        title: 'Разница недель',
+        getCellValue: row => row.currentProfession?._id ? Moment(row.currentProfession?.journal?.slice(-1)[0].endDate).diff(Moment().day(0), 'weeks') : null
       },
     ],
     grouping: [],
@@ -329,7 +355,13 @@ class EnchantedTable extends BaseComponent {
           }
           return IntegratedFiltering.defaultPredicate(value, filter, row);
         }
-      }
+      },
+    ],
+    tableColumnExtensions: [
+      { columnName: 'weeks', align: 'center' },
+      { columnName: 'gild', align: 'center' },
+      { columnName: 'name', wordWrapEnabled: true },
+      { columnName: 'currentProfession', wordWrapEnabled: true },
     ]
   };
 
@@ -372,6 +404,7 @@ class EnchantedTable extends BaseComponent {
       filteringColumnExtensions,
       yearColumns,
       yearFilterOperations,
+      tableColumnExtensions,
       exportData
     } = this.state;
     const {rows, checked, handleChange, classes} = this.props;
@@ -395,6 +428,11 @@ class EnchantedTable extends BaseComponent {
             />
             <DataTypeProvider
               for={yearColumns}
+              availableFilterOperations={yearFilterOperations}
+            />
+            <DataTypeProvider
+              for={['weeks']}
+              formatterComponent={weeksFormatter}
               availableFilterOperations={yearFilterOperations}
             />
             <FilteringState
@@ -434,7 +472,10 @@ class EnchantedTable extends BaseComponent {
             />
             <IntegratedPaging />
             <IntegratedGrouping />
-            <TableGrid messages={{noData: 'Нет данных.'}} />
+            <TableGrid
+              messages={{noData: 'Нет данных.'}}
+              columnExtensions={tableColumnExtensions}
+            />
             <TableHeaderRow
               showSortingControls
               messages={tableHeaderMessages}
