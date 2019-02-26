@@ -102,8 +102,9 @@ export class ActionsColumn extends React.PureComponent {
               {actions.map(action => {
                 const row = params.tableRow.row;
                 return (
+                  row ?
                   action.tooltip ? (
-                    <Tooltip title={action.tooltipTitle} key={row.id}>
+                    <Tooltip title={action.tooltipTitle} key={row?.id}>
                       <IconButton onClick={() => action.action(row)}>
                         {action.icon}
                       </IconButton>
@@ -112,7 +113,7 @@ export class ActionsColumn extends React.PureComponent {
                     <IconButton onClick={() => action.action(row)} key={row.id}>
                       {action.icon}
                     </IconButton>
-                  )
+                  ) : ""
                 )
               })}
             </TableGrid.Cell>
@@ -188,7 +189,7 @@ class EnchantedTable extends BaseComponent {
       },
     ],
     searchValue: '',
-    pageSizes: [25, 50, 100],
+    pageSizes: [10, 25, 50],
     tableColumnExtensions: [
       { columnName: 'avatar', width: 68 },
       { columnName: 'status', width: 150 },
@@ -243,14 +244,14 @@ class EnchantedTable extends BaseComponent {
             />
             <PagingState
               defaultCurrentPage={0}
-              pageSize={25}
+              pageSize={10}
             />
-            <IntegratedSorting />
-            <IntegratedPaging />
             <SearchState
               value={searchValue}
               onValueChange={this.changeSearchValue}
             />
+            <IntegratedSorting />
+            <IntegratedPaging />
             <IntegratedFiltering />
             <TableGrid
               columnExtensions={tableColumnExtensions}
