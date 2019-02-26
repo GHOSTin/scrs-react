@@ -160,10 +160,10 @@ class StudentDialog extends BaseComponent {
     if (this.context.type === "edit" || this.context.type === "attach") {
       update.call({id: _id, student}, displayError);
     } else {
-      insert.call({...student, isArchive: false}, displayError);
+      insert.call({student: {...student, isArchive: false}}, displayError);
     }
     this.setState({
-      ...this.baseState
+      student: {...this.baseState.student}
     });
     this.props.onHide()
   };

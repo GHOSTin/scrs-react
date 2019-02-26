@@ -356,6 +356,15 @@ class EnchantedTable extends BaseComponent {
           return IntegratedFiltering.defaultPredicate(value, filter, row);
         }
       },
+      {
+        columnName: 'weeks',
+        predicate: (value, filter, row) =>{
+          if (filter?.operation === 'equal'){
+            return _.isEqual(parseInt(value), parseInt(filter.value));
+          }
+          return IntegratedFiltering.defaultPredicate(value, filter, row);
+        }
+      },
     ],
     tableColumnExtensions: [
       { columnName: 'weeks', align: 'center' },

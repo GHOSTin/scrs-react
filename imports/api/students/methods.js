@@ -19,7 +19,8 @@ export const insert =  new ValidatedMethod({
     "student.name": { type: String },
     "student.speciality": { type: String },
     "student.year": { type: String },
-    "student.currentProfession": {type: Object, blackbox: true, optional: true}
+    "student.currentProfession": {type: Object, blackbox: true, optional: true},
+    "student.isArchive": { type: Boolean, defaultValue: false, optional: true },
   }).validator(),
   run: function ({student}) {
     if(Meteor.isServer) {
