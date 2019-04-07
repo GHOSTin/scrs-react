@@ -53,7 +53,7 @@ import {
   SortingState,
   IntegratedPaging,
   IntegratedSelection,
-  IntegratedSorting,
+  IntegratedSorting, FilteringState, IntegratedFiltering,
 } from '@devexpress/dx-react-grid';
 import {
   Grid,
@@ -61,7 +61,7 @@ import {
   TableHeaderRow,
   TableGroupRow,
   PagingPanel,
-  TableSelection,
+  TableSelection, TableFilterRow,
 } from '@devexpress/dx-react-grid-material-ui';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
@@ -619,7 +619,12 @@ class EnchantedArchiveTable extends BaseComponent {
     ],
     grouping: [{ columnName: 'year' }],
     selection: [],
+    filters: [{}],
     pageSizes: [10, 25, 100],
+    filteringStateColumnExtensions: [
+      { columnName: 'name', filteringEnabled: false },
+      { columnName: 'car', filteringEnabled: false },
+    ],
   };
 
   handleArchiveClick = () => {
@@ -633,8 +638,10 @@ class EnchantedArchiveTable extends BaseComponent {
 
   changeSelection = selection => this.setState({ selection });
 
+  changeFilters = filters => this.setState({ filters });
+
   render() {
-    const { columns, grouping, selection, pageSizes } = this.state;
+    const { columns, grouping, selection, pageSizes, filters, filteringStateColumnExtensions,} = this.state;
     const {rows, classes, isArchive, toggleArchive, onFilteredList, filter} = this.props;
 
     return (
@@ -652,6 +659,11 @@ class EnchantedArchiveTable extends BaseComponent {
             rows={rows.map((e, k) => {return {id: k, ...e}})}
             columns={columns}
           >
+            <FilteringState
+              filters={filters}
+              onFiltersChange={this.changeFilters}
+              columnExtensions={filteringStateColumnExtensions}
+            />
             <SortingState
               defaultSorting={[
                 { columnName: 'year', direction: 'desc' },
@@ -669,12 +681,14 @@ class EnchantedArchiveTable extends BaseComponent {
               defaultCurrentPage={0}
               defaultPageSize={10}
             />
+            <IntegratedFiltering />
             <IntegratedSorting />
             <IntegratedSelection />
             <IntegratedPaging />
             <IntegratedGrouping />
             <TableGrid />
             <TableHeaderRow showSortingControls/>
+            <TableFilterRow />
             <TableSelection
               showSelectAll
               cellComponent={cellComponent}

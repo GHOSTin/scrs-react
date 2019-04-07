@@ -9,7 +9,6 @@ import NotFoundPage from '../pages/NotFoundPage.jsx';
 import Message from '../components/Message.jsx';
 import Button from '@material-ui/core/Button';
 import ContentRemove from '@material-ui/icons/Block';
-import {Table, TableHeader, TableBody, TableRow, TableHeaderColumn, TableRowColumn} from 'material-ui/Table';
 import Dialog from "material-ui/Dialog";
 import { withStyles } from '@material-ui/core/styles';
 import teal from '@material-ui/core/colors/teal';
@@ -35,6 +34,13 @@ import {Typography} from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
 import Tooltip from "@material-ui/core/Tooltip";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
+import TableHead from "@material-ui/core/TableHead";
+import TableCell from "@material-ui/core/TableCell";
+import TableBody from "@material-ui/core/TableBody";
+import TableRow from "@material-ui/core/TableRow";
+import Table from "@material-ui/core/Table";
+import Grid from "@material-ui/core/Grid";
+import TextField from "@material-ui/core/TextField";
 
 const themeCalendar = {
   selectionColor: teal300,
@@ -54,7 +60,7 @@ const themeCalendar = {
 
 const styles = theme => ({
   root: {
-    width: '90%',
+    overflowX: 'auto',
   },
   button: {
     marginTop: theme.spacing.unit,
@@ -67,13 +73,16 @@ const styles = theme => ({
     padding: theme.spacing.unit * 3,
   },
   tableStyles: {
-    width: "800px!important",
+    width: 800,
   },
-  tableWrapperStyle: {
-    width: "800px!important",
+  firstCell: {
+    width: 300,
   },
   tableHeader: {
     whiteSpace: "normal!important"
+  },
+  tableCell: {
+    padding: "0 12px"
   },
   closeButton: {
     minWidth: "60px"
@@ -407,94 +416,110 @@ class JournalPage extends BaseComponent {
             ref={form => this.form = form}
           >
             {(filteredStudents.length > 0)?
-            <Table
-              className={classes.tableStyles}
-              selectable={false}
-            >
-            <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
-              <TableRow key={"header"}>
-                <TableHeaderColumn style={{width: "300px"}}>
-                  ФИО
-                </TableHeaderColumn>
-                <TableHeaderColumn className={classes.tableHeader} />
-                {TableHeaderData.map((row, index) => (
-                    <TableHeaderColumn
-                      key={index}
-                      className={classes.tableHeader}
-                    >
-                      <Tooltip title={row.tooltip} className={{tooltip: classes.lightTooltip}}><TableSortLabel>{row.name}</TableSortLabel></Tooltip>
-                    </TableHeaderColumn>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody displayRowCheckbox={false} className={classes.tableWrapperStyle}>
-              {filteredStudents.map((student) => (
-                  <TableRow key={student._id}>
-                    <TableRowColumn style={{width: "300px"}}>
-                      {student.name}
-                    </TableRowColumn>
-                    <TableRowColumn>
-                      <Button
-                          variant="contained"
-                          color="primary"
-                          className={classes.closeButton}
-                          onClick={() => this.handleRequestCloseProfession(student)}
-                      ><ContentRemove /></Button>
-                    </TableRowColumn>
-                    <TableRowColumn className={classes.tableHeader}>
-                      <NumberField
-                        name={`points[${student._id}][]`}
-                        type={"number"}
-                        min={0}
-                        max={5}
-                        ref={input => this.points[`${student._id}_point1`] = input}
-                        disabled={ student.currentProfession?.journal?.length >= 12}
-                      />
-                    </TableRowColumn>
-                    <TableRowColumn className={classes.tableHeader}>
-                      <NumberField
-                          name={`points[${student._id}][]`}
-                          type={"number"}
-                          min={0}
-                          max={5}
-                          ref={input => this.points[`${student._id}_point2`] = input}
-                          disabled={student.currentProfession?.journal?.length >= 12}
-                      />
-                    </TableRowColumn>
-                    <TableRowColumn className={classes.tableHeader}>
-                      <NumberField
-                          name={`points[${student._id}][]`}
-                          type={"number"}
-                          min={0}
-                          max={5}
-                          ref={input => this.points[`${student._id}_point3`] = input}
-                          disabled={student.currentProfession?.journal?.length >= 12}
-                      />
-                    </TableRowColumn>
-                    <TableRowColumn className={classes.tableHeader}>
-                      <NumberField
-                          name={`points[${student._id}][]`}
-                          type={"number"}
-                          min={0}
-                          max={5}
-                          ref={input => this.points[`${student._id}_point4`] = input}
-                          disabled={student.currentProfession?.journal?.length >= 12}
-                      />
-                    </TableRowColumn>
-                    <TableRowColumn className={classes.tableHeader}>
-                      <NumberField
-                          name={`points[${student._id}][]`}
-                          type={"number"}
-                          min={0}
-                          max={5}
-                          ref={input => this.points[`${student._id}_point5`] = input}
-                          disabled={student.currentProfession?.journal?.length >= 12}
-                      />
-                    </TableRowColumn>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>: <Typography>Вы уже ввели оценки за эту неделю</Typography>}
+              <div className={classes.root}>
+                <Table
+                    className={classes.tableStyles}
+                  >
+                  <TableHead>
+                    <TableRow key={"header"}>
+                      <TableCell className={[classes.tableHeader, classes.tableCell, classes.firstCell]}>
+                        ФИО
+                      </TableCell>
+                      <TableCell className={[classes.tableHeader, classes.tableCell]} />
+                      {TableHeaderData.map((row, index) => (
+                          <TableCell
+                            key={index}
+                            className={[classes.tableHeader, classes.tableCell]}
+                          >
+                            <Tooltip title={row.tooltip} className={{tooltip: classes.lightTooltip}}><span>{row.name}</span></Tooltip>
+                          </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredStudents.map((student) => (
+                        <TableRow key={student._id}>
+                          <TableCell className={[classes.firstCell, classes.tableCell]}>
+                            {student.name}
+                          </TableCell >
+                          <TableCell className={classes.tableCell}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                className={classes.closeButton}
+                                onClick={() => this.handleRequestCloseProfession(student)}
+                            ><ContentRemove /></Button>
+                          </TableCell >
+                          <TableCell className={classes.tableCell}>
+                            <TextField
+                              name={`points[${student._id}][]`}
+                              type="number"
+                              className={classes.textField}
+                              ref={input => this.points[`${student._id}_point1`] = input}
+                              disabled={ student.currentProfession?.journal?.length >= 12}
+                              InputProps={{
+                                inputProps: { min: 0, max: 5 }
+                              }}
+                              margin="normal"
+                            />
+                          </TableCell>
+                          <TableCell className={classes.tableCell}>
+                            <TextField
+                              name={`points[${student._id}][]`}
+                              type="number"
+                              className={classes.textField}
+                              ref={input => this.points[`${student._id}_point2`] = input}
+                              disabled={ student.currentProfession?.journal?.length >= 12}
+                              InputProps={{
+                                inputProps: { min: 0, max: 5 }
+                              }}
+                              margin="normal"
+                            />
+                          </TableCell>
+                          <TableCell className={classes.tableCell}>
+                            <TextField
+                              name={`points[${student._id}][]`}
+                              type="number"
+                              className={classes.textField}
+                              ref={input => this.points[`${student._id}_point3`] = input}
+                              disabled={ student.currentProfession?.journal?.length >= 12}
+                              InputProps={{
+                                inputProps: { min: 0, max: 5 }
+                              }}
+                              margin="normal"
+                            />
+                          </TableCell>
+                          <TableCell className={classes.tableCell}>
+                            <TextField
+                              name={`points[${student._id}][]`}
+                              type="number"
+                              className={classes.textField}
+                              ref={input => this.points[`${student._id}_point4`] = input}
+                              disabled={ student.currentProfession?.journal?.length >= 12}
+                              InputProps={{
+                                inputProps: { min: 0, max: 5 }
+                              }}
+                              margin="normal"
+                            />
+                          </TableCell>
+                          <TableCell className={classes.tableCell}>
+                            <TextField
+                              name={`points[${student._id}][]`}
+                              type="number"
+                              className={classes.textField}
+                              ref={input => this.points[`${student._id}_point5`] = input}
+                              disabled={ student.currentProfession?.journal?.length >= 12}
+                              InputProps={{
+                                inputProps: { min: 0, max: 5 }
+                              }}
+                              margin="normal"
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </div>: <Typography>Вы уже ввели оценки за эту неделю</Typography>}
           </form>
           <div className={classes.actionsContainer}>
             <div>

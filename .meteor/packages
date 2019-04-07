@@ -22,7 +22,7 @@ static-html@1.1.12_1
 react-meteor-data
 
 # data
-mongo@1.6.0
+mongo@1.6.2
 dburles:collection-helpers
 reywood:publish-composite
 mdg:validated-method
@@ -42,7 +42,7 @@ chriswessels:hammer
 
 # production
 juliancwirko:postcss@1.0.0-beta.11
-# standard-minifier-js@2.4.0
+#standard-minifier-js
 ddp-rate-limiter@1.0.7
 # app-prod-security
 
@@ -63,8 +63,10 @@ shell-server@0.4.0
 
 # security
 audit-argument-checks@1.0.7
-dynamic-import@0.5.0
+dynamic-import@0.5.1
 alanning:roles
 barbatus:typescript
 ghostin:react-meteor-data
 aldeed:collection2
+#apollo
+#swydo:ddp-apollo
