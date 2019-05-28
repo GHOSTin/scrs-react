@@ -137,6 +137,8 @@ class Download extends React.PureComponent {
           <Workbook.Column label="Наставник" value="controller_0"/>
           <Workbook.Column label="Мастер" value="master_0"/>
           <Workbook.Column label="Инструктор" value="instructor_0"/>
+          <Workbook.Column label="Цех" value="gild_0"/>
+          <Workbook.Column label="Участок" value="sector_0"/>
           <Workbook.Column label="Оценка 1" value={row => row['points_0'][0]}/>
           <Workbook.Column label="Оценка 2" value={row => row['points_0'][1]}/>
           <Workbook.Column label="Оценка 3" value={row => row['points_0'][2]}/>
@@ -146,6 +148,8 @@ class Download extends React.PureComponent {
           <Workbook.Column label="Наставник" value="controller_1"/>
           <Workbook.Column label="Мастер" value="master_1"/>
           <Workbook.Column label="Инструктор" value="instructor_1"/>
+          <Workbook.Column label="Цех" value="gild_1"/>
+          <Workbook.Column label="Участок" value="sector_1"/>
           <Workbook.Column label="Оценка 1" value={row => row['points_1']?row['points_1'][0]:null}/>
           <Workbook.Column label="Оценка 3" value={row => row['points_1']?row['points_1'][2]:null}/>
           <Workbook.Column label="Оценка 2" value={row => row['points_1']?row['points_1'][1]:null}/>
@@ -155,6 +159,8 @@ class Download extends React.PureComponent {
           <Workbook.Column label="Наставник" value="controller_2"/>
           <Workbook.Column label="Мастер" value="master_2"/>
           <Workbook.Column label="Инструктор" value="instructor_2"/>
+          <Workbook.Column label="Цех" value="gild_2"/>
+          <Workbook.Column label="Участок" value="sector_2"/>
           <Workbook.Column label="Оценка 1" value={row => row['points_2']?row['points_2'][0]:null}/>
           <Workbook.Column label="Оценка 2" value={row => row['points_2']?row['points_2'][1]:null}/>
           <Workbook.Column label="Оценка 3" value={row => row['points_2']?row['points_2'][2]:null}/>
@@ -164,6 +170,8 @@ class Download extends React.PureComponent {
           <Workbook.Column label="Наставник" value="controller_3"/>
           <Workbook.Column label="Мастер" value="master_3"/>
           <Workbook.Column label="Инструктор" value="instructor_3"/>
+          <Workbook.Column label="Цех" value="gild_3"/>
+          <Workbook.Column label="Участок" value="sector_3"/>
           <Workbook.Column label="Оценка 1" value={row => row['points_3']?row['points_3'][0]:null}/>
           <Workbook.Column label="Оценка 2" value={row => row['points_3']?row['points_3'][1]:null}/>
           <Workbook.Column label="Оценка 3" value={row => row['points_3']?row['points_3'][2]:null}/>
@@ -173,6 +181,8 @@ class Download extends React.PureComponent {
           <Workbook.Column label="Наставник" value="controller_4"/>
           <Workbook.Column label="Мастер" value="master_4"/>
           <Workbook.Column label="Инструктор" value="instructor_4"/>
+          <Workbook.Column label="Цех" value="gild_4"/>
+          <Workbook.Column label="Участок" value="sector_4"/>
           <Workbook.Column label="Оценка 1" value={row => row['points_4']?row['points_4'][0]:null}/>
           <Workbook.Column label="Оценка 2" value={row => row['points_4']?row['points_4'][1]:null}/>
           <Workbook.Column label="Оценка 3" value={row => row['points_4']?row['points_4'][2]:null}/>
@@ -387,6 +397,8 @@ class EnchantedTable extends BaseComponent {
         flatRow['controller_'+index] = item.controller?.profile.name;
         flatRow['master_'+index] = item.master?.profile.name;
         flatRow['instructor_'+index] = item.instructor?.profile.name;
+        flatRow['gild_'+index] = item.gild;
+        flatRow['sector_'+index] = item.sector;
         flatRow['points_'+index] = getAvgPoints(item.journal);
       });
       data.push(flatRow);
